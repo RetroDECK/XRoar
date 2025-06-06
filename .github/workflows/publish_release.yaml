@@ -104,7 +104,7 @@ jobs:
                 echo "        Build completed successfully"
                 echo "-----------------------------------------------"
                 chmod +x out/bin/xroar
-                tar -czf xroar.tar.gz out/bin/xroar
+                tar -czf xroar.tar.gz -C out .
                 shasum -a sha256 xroar.tar.gz > xroar.tar.gz.sha256
 
             - name: 'Create GitHub release'
