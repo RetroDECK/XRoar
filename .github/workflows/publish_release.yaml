@@ -82,10 +82,9 @@ jobs:
               run: |
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                  git checkout -b "update-xroar-${{ steps.extract_version.outputs.version }}"
                   git add .
                   git commit -m "Update XRoar source to version ${{ steps.extract_version.outputs.version }}"
-                  git push --set-upstream origin "update-xroar-${{ steps.extract_version.outputs.version }}"
+                  git push --set-upstream origin main || echo "No changes to commit"
 
             - name: 'Build XRoar'
               if: steps.compare_versions.outputs.update_needed == 'true'
