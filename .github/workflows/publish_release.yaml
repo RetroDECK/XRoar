@@ -99,6 +99,7 @@ jobs:
                 mkdir out
                 ./configure --prefix="$PWD/out"
                 make
+                sudo make install
                 echo "-----------------------------------------------"
                 echo "        Build completed successfully"
                 echo "-----------------------------------------------"
