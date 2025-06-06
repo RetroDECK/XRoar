@@ -79,8 +79,8 @@ jobs:
                   url="${{ steps.extract_download_link.outputs.url }}"
                   curl -sSL "$url" -o xroar.tar.gz
                   tar -xzf xroar.tar.gz --strip-components=1 --overwrite
-                  README-Header.md > README.md
-                  README >> README.md
+                  cat README-Header.md > README.md
+                  cat README >> README.md
                   ls -lah
 
             - name: 'Commit and push updated source'
