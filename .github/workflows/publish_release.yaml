@@ -94,15 +94,15 @@ jobs:
               if: steps.compare_versions.outputs.update_needed == 'true'
               run: |
                 sudo apt install build-essential libgtk-3-dev libpulse-dev libpng-dev
-                ./configure
+                mkdir out
+                ./configure --prefix=out
                 make
                 echo "-----------------------------------------------"
                 echo "        Build completed successfully"
                 echo "-----------------------------------------------"
-                ls -lah
-                chmod +x xroar
-                tar -czvf xroar-${{ steps.extract_version.outputs.version }}.tar.gz xroar
-                ls -lh xroar-${{ steps.extract_version.outputs.version }}.tar.gz
+                ls -lah out
+                chmod +x out/xroar
+                tar -czvf xroar-${{ steps.extract_version.outputs.version }}.tar.gz -C out xroar
 
             - name: 'Create GitHub release'
               if: steps.compare_versions.outputs.update_needed == 'true'
