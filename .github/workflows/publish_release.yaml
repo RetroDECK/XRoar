@@ -117,6 +117,7 @@ jobs:
                   body: |
                     ## Changes
                     - Updated XRoar to version ${{ steps.extract_version.outputs.version }}.
+                    
                     Check the README for more details.
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
