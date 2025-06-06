@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang='en-GB'>
+
+
+
+
+
+
+
+
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<link rel='icon' href='/dragon/images/tinydragon.png'>
+<link rel='author' href='https://www.6809.org.uk/ciaran/'>
+<style media='screen'><!--/*--><![CDATA[/*><!--*/
+@import url('/nistyle-screen.css');
+/*]]>*/--></style>
+<style media='print'><!--/*--><![CDATA[/*><!--*/
+@import url('/nistyle-print.css');
+/*]]>*/--></style>
+<style media='screen,print'><!--/*--><![CDATA[/*><!--*/
+@import url('/nistyle.css');
+/*]]>*/--></style>
+
+<style media='screen,print'><!--/*--><![CDATA[/*><!--*/
+figcaption { font-style: italic; font-size: smaller; }
+.fixes { margin-top: -0.5rem; margin-bottom: 0.5rem; }
+.fixes + ul { margin-top: 0.5rem; }
+/*]]>*/--></style>
+<meta name='description' content='XRoar: Dragon 32, Dragon 64, Dragon 200-E, Tandy Colour Computer and Tandy MC-10 emulator for Linux, Unix, Mac OS X and Windows.'>
+<title>XRoar, a Dragon and Tandy 8-bit computer emulator</title>
+</head>
+
+<body>
+
+<header>
+
+
+
+<nav id='site-nav'>
+
+<p class='skiptocontent'><a href='#content'>Skip navigation</a>
+<h2>Navigation</h2>
+<ul>
+
+
+<li><a href='/debian/'>Apt repository</a>
+
+
+
+<li><a href='/dragon/'>Dragon computers</a>
+
+
+
+<li><a href='/evilwm/'>evilwm</a>
+
+
+
+<li><strong>XRoar</strong>
+  <ul>
+  <li><a href='/xroar/doc/xroar.shtml'>Manual</a>
+  <li><a href='/xroar/features.shtml'>Features</a>
+  <li><a href='/xroar/online/'>Online</a>
+  </ul>
+
+
+
+<li><a href='/asm6809/'>asm6809</a>
+
+
+
+<li><a href='/blockdown/'>Blockdown</a>
+
+
+
+<li><a href='/dunjunz/'>Dunjunz</a>
+
+
+
+<li><a href='/fstools/'>fstools</a>
+
+(ADFS)
+
+
+<li><a href='/media/'>Media</a>
+
+
+
+<li><a href='/dev/'>Dev diary</a>
+
+
+
+<li><a href='/misc/'>Miscellany</a>
+
+
+
+<li><a href='/ciaran/'>Personal / Contact</a>
+
+
+</ul>
+
+<p><a href='/cookies.shtml'>Cookies?</a>
+
+
+
+
+
+
+
+</nav>
+
+</header>
+
+<main id='content'>
+
+
+<h1>XRoar, a Dragon and Tandy 8-bit computer emulator</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+<p><i>XRoar</i> emulates the <a href='/dragon/'>Dragon 32/64</a>; Tandy Colour
+Computers 1, 2 and 3; the Tandy MC-10; and some other similar machines or
+clones.  It runs on a wide variety of platforms.  <a href='features.shtml'>More
+features</a>.
+
+<h2 id='download'>Download</h2>
+
+<p><strong>Source code</strong> version
+<strong>1.8.2</strong>, released
+<strong>2025-02-14</strong>:
+<a href='dl/xroar-1.8.2.tar.gz'>xroar-1.8.2.tar.gz</a>.
+<a href='dl/'>Other downloads</a>.
+
+<p><b>Debian</b> snapshot builds are available in the <a href='/debian/'>Apt repository</a>.
+
+<p><strong>Ubuntu</strong> snapshot builds are available in this
+<a href='https://launchpad.net/~sixxie/+archive/ubuntu/ppa'>PPA on Launchpad</a>.
+
+<p><strong>Mac OS X</strong> binaries:
+<a href='dl/xroar-1.8-macosx.zip'>64-bit x86 Mac OS X</a>
+(built under 10.13)
+
+<p style='margin-bottom:0.125em;'><strong>Windows</strong> binaries (cross-built using <a href='http://mingw.org/'>MinGW</a>):
+<ul style='margin-top:0.125em;'>
+<li>64-bit Windows: <a href='dl/xroar-1.8.1-w64.zip'>ZIP archive</a>,
+    <a href='dl/xroar-1.8.1-w64.msi'>MSI installer</a>
+<li>32-bit Windows: <a href='dl/xroar-1.8.1-w32.zip'>ZIP archive</a>,
+    <a href='dl/xroar-1.8.1-w32.msi'>MSI installer</a>
+</ul>
+
+<p><strong>Git</strong> repository:
+<code><b>git clone <a href='https://www.6809.org.uk/git/xroar.git'>https://www.6809.org.uk/git/xroar.git</a></b></code>
+
+<!--
+<figure style='float: right; margin-left: 0.75em; margin-right: 0; margin-top: 0; margin-bottom: 0.5em; width: 17.5rem;'>
+<a href='images/xroar-gtk2.png'><img src='images/xroar-gtk2.png' alt='XRoar (GTK+ interface)' style='width: 100%; display: block;'></a>
+<figcaption style='text-align: right;'>XRoar (GTK+ interface)</figcaption>
+</figure>
+-->
+
+<p>The manual is available in these formats:
+<a href='/xroar/doc/xroar.pdf'>PDF</a> and
+<a href='/xroar/doc/xroar.shtml'>HTML</a>.
+See <a href='/xroar/doc/xroar.shtml#Getting-started'>Getting started</a> for a
+quick guide to running <i>XRoar</i>.
+See <a href='/xroar/doc/xroar.shtml#Building-from-source'>Building from source</a>
+for instructions on building from source.
+Be sure to read about any <a href='/xroar/doc/xroar.shtml#Recent-changes'>Recent changes</a>.
+
+<p>Some loose notes about cross-compiling for Windows using Debian: <a href='mingw.shtml'>Building XRoar for Windows</a>.
+
+<p>Firmware ROM images are required to usefully run this emulator. If you have
+difficulty extracting these from your real Dragon, CoCo or MC-10, dumps may be
+available from the
+<a href='http://archive.worldofdragon.org/'>Dragon Archive</a> or the <a href='https://colorcomputerarchive.com/'>Color Computer Archive</a>.
+
+<p><strong>Important:</strong> since version 1.3, the floppy disk image
+write-back behaviour has changed.  See
+<a href='http://www.6809.org.uk/xroar/doc/xroar.shtml#Recent-changes'>Recent
+changes</a> in the manual.
+
+<p><a href='/asm6809/'>asm6809</a> is a 6809 assembler that can generate
+machine code to run on the Dragon.
+
+<p>Want a Dragon in your browser?  Try <a href='/xroar/online/'>XRoar Online</a>.
+
+<ul>
+<li><a href='#notes'>Notes for version 1.8</a>
+<li><a href='#redistribution'>Redistribution</a>
+<li><a href='#ports'>Ports</a>
+<!-- li><a href='#similar'>Similar projects</a -->
+<!-- <li><a href='#images'>Images</a> -->
+</ul>
+
+<h2 id='notes'>Notes for version 1.8</h2>
+
+<ul>
+<li>Fix mouse virtual joystick on resize in SDL builds [Richard Kelly]
+<li>New manual and automatic configuration saving from GUI
+<li>Manage HD mounting from drive control dialog
+<li>New MCX128 cartridge support for MC-10
+<li>Fix some of the compatibility modes in GIME emulation
+<li>Assert monitor detect line on CoCo 3 when RGB output selected
+<li>Reduce write latency using Becker port [Ron Klein]
+<li>Add some more flexible command-line trap options
+</ul>
+
+<p>Please note that the GTK+ 2 UI is is deprecated in favour of GTK+ 3.  I will
+probably support GTK+ 2 for as long as it and GtkGLExt exist in Debian, but <a
+href='https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1054392'>this may not
+be for very long now</a>.
+
+<h3 class='fixes'>Fixes in versions to 1.8.2</h3>
+
+<ul>
+<li>Fix Mac OS X+ build under more modern compilers [Chad Krokosh]
+<li>Fix Windows UI zoom in/out [Erico Monteiro]
+<li>SDL build fix [by Andrea Musuruane]
+</ul>
+
+<p>For version change history, see the <a href='doc/ChangeLog'>ChangeLog</a>.
+
+<p><code>[<em>n</em>]</code> - reported by,
+<code>[by <em>n</em>]</code> - contributed by,
+<code>[with <em>n</em>]</code> - developed with.
+
+<!-- h3>Known issues</h3>
+
+<ul>
+<li>Building for windows32/macosx+ without libpng present fails.
+</ul -->
+
+<h2 id='redistribution'>Redistribution</h2>
+
+<p>License: GNU GPL version 3 or later &lt;<a href='http://www.gnu.org/licenses/gpl-3.0.html'>http://www.gnu.org/licenses/gpl-3.0.html</a>&gt;.<br>
+This is free software: you are free to change and redistribute it.<br>
+There is NO WARRANTY, to the extent permitted by law.
+
+<p>Binary packages may be linked against
+<a href='http://www.libsdl.org/'>SDL</a>.
+
+<ul>
+<li>Local copy of SDL source code: <a href='mirror/sdl/SDL2-2.30.11.tar.gz'>SDL2-2.30.11.tar.gz</a>.
+</ul>
+
+<h2 id='ports'>Ports</h2>
+
+<p>All of these ports are quite old now, predating the 1.x releases and thus
+not supporting Tandy CoCo 3, MC-10 and various other things.
+
+<p><strong>Android</strong> APK: <a href='mirror/tormod/xroar-0.31.1-1.apk'>xroar-0.31.1-1.apk</a>
+
+<p>Android port contributed by Tormod Volden. For more information see its <a
+href='mirror/tormod/readme.txt'>readme.txt</a>. For patches, etc., check out
+<a href='http://tormod.freeshell.org/xroar/'>Tormod's website</a>.
+
+<!-- All links to anything about the PS3 port appear to have vanished...
+<p>CrashSerious has ported version 0.24 to the PS3. Download the <a
+href='http://www.multiupload.com/GCATQBUK10'><i>PS3roar</i> binary</a>, or
+clone the <a href='http://git.dashhacks.com/ps3roar/ps3roar'><i>PS3roar</i> git
+repository</a>.  There's an announcement page with discussion <a
+href='http://www.ps3hax.net/2011/08/ps3roar-released/'>here</a>.
+-->
+
+<p><a href='http://hirudov.com/'>drHirudo</a> ported <i>XRoar</i> to AmigaOS 4 (!),
+<a href='http://hirudov.com/amiga/XRoar.html'>available here</a>.
+
+<p>Stefan Haubenthal uploaded a
+<a href='http://aminet.net/package/misc/emu/xroar'>build for MorphOS</a> to
+<a href='http://aminet.net/'>aminet</a>.
+
+<p><a href='http://zx81.zx81.free.fr/serendipity/'>ZX-81</a> ported
+version 0.19 to the Sony PSP and GP2X handhelds. Check for "Tandy
+Coco" in the list of categories on
+<a href='http://zx81.zx81.free.fr/serendipity/'>ZX-81's web site</a>.
+
+<!-- Dreamcast version vanished too
+<p>Ron from DCEmu started a port to the Dreamcast called <i>DragonDC</i>. The
+last post about it I can find was <a
+href='http://www.dcemu.co.uk/vbulletin/showthread.php?t=59509'>from the 12th
+April 2007</a>.
+-->
+
+<!-- Nobody ever returned the favour...
+<h2 id='similar'>Similar projects</h2>
+
+<p><a href='http://mamedev.org/'><i>MAME</i></a> emulates a variety of old
+computer hardware, Dragon included.  GPL 2 (not 2+, but with some more
+permissive licensing per-file).
+
+<p><a href='http://sourceforge.net/projects/vcce/'><i>VCC</i></a>, a
+Windows-only CoCo 3 emulator. Does not emulate CoCo 1/2 (beyond what
+compatibility a CoCo 3 had) or Dragon. Open-sourced around August 2015.
+
+<p><a href='https://github.com/WallyZambotti/OVCC'><i>OVCC</i></a> develops the
+open-sourced version of VCC to make it cross-platform.  CoCo 3 only, like the
+original.
+-->
+
+<!-- 
+<h2 id='images'>Images</h2>
+
+<ul class='widethumbs'>
+<li><a href='images/aquanaut471.png'><img src='images/aquanaut471-thumb.png' alt='XRoar simulating NTSC cross-colour'><br><i>XRoar</i> simulating NTSC cross-colour</a>
+<li><a href='images/xroar-nds.jpg'><img src='images/xroar-nds-thumb.jpg' alt='XRoar on the Nintendo DS'><br><i>XRoar</i> on the Nintendo DS</a>
+<li><a href='images/xroar-gp32.png'><img src='images/xroar-gp32-thumb.jpg' alt='XRoar on the GP32'><br><i>XRoar</i> on the GP32</a> (old version)
+</ul>
+<div class='breakfloat'>&nbsp;</div>
+-->
+
+</main>
+
+<p id='updated'><em>Updated 14 Feb 2025</em>
+
+</body>
+
+</html>
+

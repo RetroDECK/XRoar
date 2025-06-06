@@ -1,0 +1,69 @@
+/** \file
+ *
+ *  \brief GTK+ 3 joystick interfaces.
+ *
+ *  \copyright Copyright 2024 Ciaran Anscomb
+ *
+ *  \licenseblock This file is part of XRoar, a Dragon/Tandy CoCo emulator.
+ *
+ *  XRoar is free software; you can redistribute it and/or modify it under the
+ *  terms of the GNU General Public License as published by the Free Software
+ *  Foundation, either version 3 of the License, or (at your option) any later
+ *  version.
+ *
+ *  See COPYING.GPL for redistribution conditions.
+ *
+ *  \endlicenseblock
+ */
+
+#include "top-config.h"
+
+#include <stdlib.h>
+
+#include <gtk/gtk.h>
+
+#include "joystick.h"
+#include "module.h"
+
+#include "gtk3/common.h"
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static struct joystick_control *configure_mouse_axis(char *, unsigned);
+static struct joystick_control *configure_mouse_button(char *, unsigned);
+
+static struct joystick_submodule gtk3_js_mouse = {
+	.name = "mouse",
+	.configure_axis = configure_mouse_axis,
+	.configure_button = configure_mouse_button,
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+extern struct joystick_submodule hkbd_js_keyboard;
+
+static struct joystick_submodule *js_submodlist[] = {
+	&hkbd_js_keyboard,
+	&gtk3_js_mouse,
+	NULL
+};
+
+struct joystick_module gtk3_js_internal = {
+	.common = { .name = "gtk3", .description = "GTK+ joystick" },
+	.submodule_list = js_submodlist,
+};
+
+struct joystick_module *gtk3_js_modlist[] = {
+	&gtk3_js_internal,
+	NULL
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static struct joystick_control *configure_mouse_axis(char *spec, unsigned jaxis) {
+	return joystick_configure_mouse_axis(&global_uigtk3->public, spec, jaxis);
+}
+
+static struct joystick_control *configure_mouse_button(char *spec, unsigned jbutton) {
+	return joystick_configure_mouse_button(&global_uigtk3->public, spec, jbutton);
+}

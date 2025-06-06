@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.40.0 -->
+<interface>
+  <requires lib="gtk+" version="3.16"/>
+  <object class="GtkAdjustment" id="adj_brightness">
+    <property name="upper">100</property>
+    <property name="value">50</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_contrast">
+    <property name="upper">100</property>
+    <property name="value">50</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_gain">
+    <property name="lower">-50</property>
+    <property name="upper">3</property>
+    <property name="value">-3</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">3</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_hue">
+    <property name="lower">-179</property>
+    <property name="upper">180</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_saturation">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkWindow" id="vo_window">
+    <property name="can-focus">False</property>
+    <property name="title" translatable="yes">XRoar · TV controls</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkFrame">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label-xalign">0</property>
+            <property name="shadow-type">none</property>
+            <child>
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">12</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <property name="row-spacing">4</property>
+                <property name="column-spacing">4</property>
+                <child>
+                  <object class="GtkSpinButton" id="sb_gain">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="invisible-char">•</property>
+                    <property name="text" translatable="yes">-3</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="secondary-icon-activatable">False</property>
+                    <property name="adjustment">adj_gain</property>
+                    <property name="digits">1</property>
+                    <property name="numeric">True</property>
+                    <property name="value">-3</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="label" translatable="yes">Audio Gain</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Audio&lt;/b&gt;</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label-xalign">0</property>
+            <property name="shadow-type">none</property>
+            <child>
+              <!-- n-columns=2 n-rows=7 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">12</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <property name="row-spacing">4</property>
+                <property name="column-spacing">4</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">TV input</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_tv_input">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Brightness</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="sb_brightness">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="invisible-char">•</property>
+                    <property name="text" translatable="yes">50</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="secondary-icon-activatable">False</property>
+                    <property name="adjustment">adj_brightness</property>
+                    <property name="numeric">True</property>
+                    <property name="value">50</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Contrast</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="sb_contrast">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="invisible-char">•</property>
+                    <property name="text" translatable="yes">50</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="secondary-icon-activatable">False</property>
+                    <property name="adjustment">adj_contrast</property>
+                    <property name="numeric">True</property>
+                    <property name="value">50</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Colour</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="sb_saturation">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="invisible-char">•</property>
+                    <property name="text" translatable="yes">0</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="secondary-icon-activatable">False</property>
+                    <property name="adjustment">adj_saturation</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Hue</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="sb_hue">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="invisible-char">•</property>
+                    <property name="text" translatable="yes">0</property>
+                    <property name="primary-icon-activatable">False</property>
+                    <property name="secondary-icon-activatable">False</property>
+                    <property name="adjustment">adj_hue</property>
+                    <property name="numeric">True</property>
+                    <property name="wrap">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Picture Area</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_picture">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">60Hz Scaling</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="tb_ntsc_scaling">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Video&lt;/b&gt;</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label-xalign">0</property>
+            <property name="shadow-type">none</property>
+            <child>
+              <!-- n-columns=2 n-rows=5 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">12</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <property name="row-spacing">4</property>
+                <property name="column-spacing">4</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Renderer</property>
+                    <property name="use-markup">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_cmp_renderer">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">F&lt;sub&gt;S&lt;/sub&gt;</property>
+                    <property name="use-markup">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_cmp_fs">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">F&lt;sub&gt;SC&lt;/sub&gt;</property>
+                    <property name="use-markup">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_cmp_fsc">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">System</property>
+                    <property name="use-markup">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cbt_cmp_system">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Colour Killer</property>
+                    <property name="use-markup">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="tb_cmp_colour_killer">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Composite Video&lt;/b&gt;</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

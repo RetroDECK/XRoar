@@ -1,0 +1,738 @@
+Version 1.8.2, Fri 14 Feb 2025
+
+ * SDL build fix [by Andrea Musuruane]
+
+Version 1.8.1, Sun  2 Feb 2025
+
+ * Fix Mac OS X+ build under more modern compilers [Chad Krokosh]
+ * Fix Windows UI zoom in/out [Erico Monteiro]
+
+Version 1.8, Thu 30 Jan 2025
+
+ * Fix mouse virtual joystick on resize in SDL builds [Richard Kelly]
+ * New manual and automatic configuration saving from GUI
+ * Manage HD mounting from drive control dialog
+ * New MCX128 cartridge support for MC-10
+ * Fix some of the compatibility modes in GIME emulation
+ * Assert monitor detect line on CoCo 3 when RGB output selected
+ * Reduce write latency using Becker port [Ron Klein]
+ * Add some more flexible command-line trap options
+
+Version 1.7.3, Fri 29 Nov 2024
+
+ * Fix built-in configs with non-default CPUs
+ * Fix direct loading of DragonDOS binaries
+
+Version 1.7.2, Tue 26 Nov 2024
+
+ * Fix GIME issue when loading from snapshot
+ * Fix Becker port status polling [Pierre Sarrazin]
+
+Version 1.7.1, Fri 22 Nov 2024
+
+ * Reduce memory use when reading gamepad mappings file
+ * Include missing files in tarball distribution [Rui Chen]
+
+Version 1.7, Thu 21 Nov 2024
+
+ * Avoid calling xroar_screenshot() when not supported [with Paul Ripke]
+ * Avoid X11 keyboard init when SDL not build with X11 support [Paul Ripke]
+ * SDL joystick module supports hotplug where possible
+ * SDL joystick module creates Left & Right stick profiles if found
+ * Support reading a SDL gamepad DB file for non-SDL joystick modules
+ * New -joy-db-file option specifies SDL-compatible gamepad DB file
+ * New Linux evdev joystick module (hotplug, internal SDL DB, L/R profiles)
+ * Large changes to underlying UI mechanisms
+ * New features backported to GTK+ 2 UI
+
+Version 1.6.6, Tue 15 Oct 2024
+
+ * Force X11 in GTK+ 3 UI, fixing crash querying keyboard map [Rolf Michelsen]
+
+Version 1.6.5, Mon 23 Sep 2024
+
+ * SDL: fix use of physical joysticks after disconnecting [Pere Serrat]
+
+Version 1.6.4, Fri 20 Sep 2024
+
+ * Fix Control+Shift+digit shortcuts
+ * Fix LUT-based composite rendering for CoCo 3 [Christian M]
+
+Version 1.6.3, Thu 12 Sep 2024
+
+ * Ensure data chunk in WAV output is of even length [Stacey Vetzal]
+
+Version 1.6.2, Fri  6 Sep 2024
+
+ * Add missing menus to Windows/Mac OS X+ UIs
+
+Version 1.6.1, Thu  5 Sep 2024
+
+ * Reinstate ROM image header skipping [Davy Mitchell]
+
+Version 1.6, Thu  5 Sep 2024
+
+ * New -ram-org option to specify RAM addressing
+ * New -ram-init option to specify initial RAM state
+ * 6309 DIVD behaviour fixed against Tim Lindner's fuzzing tool
+ * 6309 DIVD timing fixed according to David Banks's behaviour notes
+ * 6309 DIVQ behaviour & timing adjusted similarly, though untested
+ * More accurate observed NTSC CoCo 3 GIME composite video behaviour
+ * New GTK+ 3 UI
+ * New printer control dialog (GTK+ 3, Windows) or menu options (Mac OS X+)
+ * Update CoCo 3 video timings
+ * SDL: open joysticks in controller mode if possible
+ * New unified keyboard abstraction
+ * Extra default keyboard-based virtual joystick profiles: WASD, IJKL, QAOP
+ * Dynamically include configs for all physical joysticks on startup
+ * New machine Dragon Professional (Alpha), 'dragonpro'
+ * New machine Tandy Deluxe Colour Computer, 'deluxecoco'
+
+Version 1.5.5, Sun 24 Mar 2024
+
+ * Allow SDL to use WASAPI (Windows) audio (bug fixed in SDL 2.29.3)
+ * Use queued audio interface in SDL leading to less glitchy Windows audio
+
+Version 1.5.4, Mon 26 Feb 2024
+
+ * Fixed 6309 register-memory bit ops [R. Allen Murphy]
+
+Version 1.5.3, Tue  6 Feb 2024
+
+ * GIME: fix interrupt fixes fix (fixes RoboCop)
+
+Version 1.5.2, Mon 29 Jan 2024
+
+ * GIME: timer interrupt fixes [Tim Lindner]
+
+Version 1.5.1, Sat 27 Jan 2024
+
+ * Include a cartridge database (mostly CoCo 3 32K) for convenience
+ * Fix potential crash when cartridge loading fails [Russ Le Blang]
+ * Recognise Windows "<drive-letter>:" [Russ Le Blang]
+
+Version 1.5, Thu 25 Jan 2024
+
+ * Add ability to change Picture Area, seeing more or less border
+ * New option -vo-picture
+ * Respect -geometry dimensions in SDL-based UIs
+ * Add optional 60Hz vertical scaling (on by default)
+ * New option -no-vo-scale-60hz disables 60Hz scaling
+ * Faster ROM intercept based printing on CoCo and MC-10
+ * GIME: respect X offset and HVEN in COCO mode
+ * MPI slot config moved from global to per-cart, included in -config-print
+ * Add screenshot to PNG from menu or Control+Shift+S
+ * Fix printing after switching machines [Jak Fearon]
+ * Better rendering of paths in Windows dialogs
+ * Fix some CoCo 3 cartridge behaviour [Christian Haitian]
+ * GIME: reset video address later (fixes Androne) [Russ Le Blang]
+ * GIME: fix various $FExx access problems
+
+Version 1.4.2, Tue 16 Jun 2023
+
+ * Fix running with -ui null
+
+Version 1.4.1, Tue  6 Jun 2023
+
+ * Fix composite colour switching in -ccr simple and -ccr 5bit [Keith Palmer]
+
+Version 1.4, Mon  5 Jun 2023
+
+ * NTSC colour tweaks for slightly better "cyan"
+ * Initial support for middle-button paste
+ * Add brightness, contrast, saturation & hue controls to GTK+ and Windows UIs
+ * Add gain/volume controls to GTK+ and Windows UIs
+ * New options: -vo-brightness, -vo-contrast, -vo-colour, -vo-hue
+ * New tape control & drive control windows in Windows UI
+ * GIME: implement bug in 16-colour, 16 byte-per-row modes
+ * New option -vo-pixel-fmt specifies pixel layout and bit depth
+ * Old NTSC-only composite renderer renamed -ccr partial
+ * New composite renderer that handles PAL used for -ccr simulated
+ * WD279x: write sync bytes before DAM (fixes written-to DMK) [Michael Furman]
+ * New option: -no-vo-colour-killer
+
+Version 1.3.1, Tue 14 Feb 2023
+
+ * Further GIME VSC tweaks
+ * Allow preemption of Control key (for CoCo 3)
+ * Fix GTK+ zoom in/out
+ * Work around build issues on Apple Silicon [Allen Huffman, Blair Leduc]
+
+Version 1.3, Wed  4 Jan 2023
+
+ * Add -no-ratelimit option to start at maximum speed
+ * Further fixes to 6809 TFR/EXG involving CC/DP [Tim Lindner]
+ * Fix Delta density select [Phill Harvey-Smith]
+ * Track floppy disk 'dirty' state to avoid unnecessary image rewrites
+ * Important: disk write-back now defaults to ENABLED
+ * Better Vertical SCroll register behaviour in GIME [Ralph Serpas]
+ * 6309 timing fix for bit operations
+
+Version 1.2, Thu 27 Oct 2022
+
+ * Fixed comma, lowercase 'm', lowercase 'ø' glyphs for GIME [Tim Lindner]
+ * Fix SDL-only builds
+ * 6809: flesh out some illegal instruction behaviours [David Banks]
+ * 6309: flesh out some undocumented behaviour [David Banks]
+ * Fleshed out T1-compatibility in CoCo 3 GIME [R. Allen Murphy]
+
+Version 1.1, Thu 21 Jul 2022
+
+ * New GDB monitor commands [by Tormod Volden]
+ * New configure options to only build specific machine archs
+ * Support 1M or 2M in CoCo 3 [with Christopher Hawks]
+ * Support K7 cassette image files (read-only)
+ * Support UTF-8 block characters in -type for MC-10
+ * Type ASCII BASIC from file on MC-10
+ * Matra & Hachette Alice support (keyboard layout, built-in profile)
+ * New meta-options -machine-opt and -cart-opt
+ * New ide-addr=address cart-opt
+ * New abstract block device handling
+ * IDE support adjusted to use abstracted block devices
+ * MOOH/NX32 support adjusted to use abstracted block devices
+ * 6801/6803: fix some illegal instruction timings [George Phillips]
+ * Fixed uppercase 'G', lowercase 'j' and 'w' glyphs for 6847T1 [Tim Lindner]
+
+Version 1.0.9, Tue 18 Jan 2022
+
+ * Close file after serialisation [Steve Rasmussen]
+
+Version 1.0.8, Thu 13 Jan 2022
+
+ * Fix WASM audio for non-Firefox [Greg Dionne]
+ * Fix crash reading zero-length CAS file
+ * Fix joystick reads for Pacdude Monster Maze
+
+Version 1.0.7, Sat  1 Jan 2022
+
+ * Fix Windows 11 video (set SDL hint to use different renderer)
+
+Version 1.0.6, Fri 31 Dec 2021
+
+ * Fix SDL audio thread interactions
+ * Try multiple SDL video renderers in order
+ * Fix composite phase setting
+
+Version 1.0.5, Thu 23 Dec 2021
+
+ * Open IDE images in binary mode under Windows [by Tormod Volden]
+
+Version 1.0.4, Sun 12 Dec 2021
+
+ * GIME IO range fixes [Roger Taylor]
+ * Enable GDB for CoCo 3 [Michael Furman]
+ * Fix HD6309 TFM when W=0 [Michael Furman, L. Curtis Boyle]
+
+Version 1.0.3, Mon  6 Dec 2021
+
+ * 6801/6803: many more illegal instructions [Greg Dionne, Ron Klein]
+ * Fix EXTMEM signalling for writes to RAM [Stewart Orchard]
+ * MC10: Constrain video to internal 4K RAM [Simon Jonassen]
+ * Default -ao-fragments changed for new SDL audio [Steve Bamford]
+ * MPI: return to selected slot on reset ["dragonnostalgia", Tim Lindner]
+
+Version 1.0.2, Tue 23 Nov 2021
+
+ * Fix single-bit sound feedback into PIA.
+ * Revert SDL audio to callbacks, helps with Windows ["sloopy malibu"]
+ * Fix MC10 INT/EXT wiring [Jim Gerrie]
+ * 6801/6803: implement more illegal instructions [with Greg Dionne]
+ * 6803: Lower bits of address to data bus for floating reads [Greg Dionne]
+ * MC10: Only set lower 6 bits on keyboard read [Greg Dionne]
+
+Version 1.0.1, Sat 20 Nov 2021
+
+ * Fix cart disable logic when loading other media [".mad.", Stewart Orchard]
+ * MC6801/6803: TST resets CC.C, unlike MC6809.
+ * Revert colourburst for NTSC colour modes with CSS+GM0 [Allen Huffman]
+
+Version 1.0, Tue 16 Nov 2021
+
+ * Initial CoCo 3 support.
+ * Fix MPI FIRQ handling [Paul Fiscarelli]
+ * New option -tv-input configures type of video used by machine.
+ * New option -kbd-bind for user mapping of (untranslated) keys.
+ * Fix duplicate-IDAM issue when reformatting disks [Paul Fiscarelli]
+ * Initial MC-10 support (including MC6803 emulation).
+ * Fix occasional spurious NMI in RSDOS [Simon Jonassen]
+ * New snapshot format to support CoCo 3, MC-10.
+ * New specific load options: -load-fdX, -load-hdX, -load-sd, -load-tape
+ * IDE, NX32, MOOH now all require user to specify an image.
+ * Games Master Cartridge no longer marked autostart by default.
+ * Tape play/pause function (mainly for MC-10 which has no motor remote).
+ * Snapshot saves only RAM contents into .ram files [Phill Harvey-Smith]
+ * List physical joysticks on -joy-axis help or -joy-button help.
+ * Control+M toggles menubar where appropriate.
+
+Version 0.37, Sat 14 Aug 2021
+
+ * Add Control+Shift+D to flush disk images
+ * Support leading "~/" in filenames, not just path elements
+ * New option -tape-hysteresis (with new default of 1% tape input hysteresis)
+ * New option -tape-rewrite-gap-ms _ms_ sets gap length during rewrite
+ * New option -tape-rewrite-leader _bytes_ sets leader length during rewrite
+ * Document previously added option -tape-pan
+ * Detect pulse widths for CUE data when using -tape-rewrite
+ * RACE Computer Expansion Cage support (-cart mpi-race)
+ * Removed -fast-sound option (and related menu options)
+
+Version 0.36.2, Wed 22 Jul 2020
+
+  * Fix -lp-file option [Pere Serrat]
+  * Change default CoCo disk interleave to 5 [Simon Jonassen]
+
+Version 0.36.1, Thu 18 Jun 2020
+
+  * Support CAS padding without fast loading enabled
+  * Don't escape option arguments if they expect a filename [".mad."]
+  * Fix setting 6309 registers from GDB
+  * Fix GDB listen on machine reconfigure (eg snapshot load) [Pere Serrat]
+  * Fix joystick axis & button option parsing [David Ladd]
+
+Version 0.36, Mon  8 Jun 2020
+
+  * Fix SAM S output in map type 1 [Pere Serrat]
+  * Work around Windows audio failure when 5.1 is available [Gerald Stefan]
+  * Cleaner PulseAudio output
+  * Try harder to find working SDL2 audio format
+  * Avoid buggy 'wasapi' SDL audio backend under Windows
+  * HD6309: Clear MD register on reset [Pere Serrat]
+  * Relicensed to GPLv3+
+  * WebAssembly target support
+  * MC6809: LEA instructions work in page 1 [Stewart Orchard]
+  * Recognise .dgn and .cco as potential binary files
+  * Migrated Mac OS X UI to SDL2
+  * Updates for IDE and IDE cartridge [by Alan Cox]
+  * SAM VDG counter switching behaviour updates [with Stewart Orchard]
+  * Reload cartridge ROMs on each reset to aid test cycle [Steve Bamford]
+  * Try first listed UI module if user-specified one not found
+  * New configuration parsing with quotes and escape sequences
+  * In Windows, search Documents/XRoar/ (for config file) and
+    Documents/XRoar/roms/ (for ROM images).
+
+Version 0.35, Fri 27 Jul 2018
+
+  * New EXTMEM/SLENB support allows cartridges to inhibit normal device select
+  * New NX32 RAM cartridge [by Tormod Volden]
+  * Fix buffer overrun in MC6847 code
+  * New option -ao-gain specifies volume in dBFS
+  * New CAS CUE support
+  * New -C option allocates debug console in Windows (must be first option)
+  * Fix use of AltGr key in translated mode on Windows (SDL2)
+  * New MOOH RAM + SD card cartridge [by Tormod Volden]
+  * Support JVC/DSK files with non-standard sectors per track
+  * Integrate tracing into CPU code
+  * MC6809: Assume certain page2 illegal ops are same as page0 [David Ladd]
+  * WD279x: implement multiple-sector type 2 ops
+  * New SN76489 sound chip support
+  * New Games Master Cartridge support (-cart gmc)
+  * Use SDL2 audio queueing interface where -ao-fragments > 1
+  * Optional --disable-simulated-ntsc configure option for speed
+  * HD6309: Fix interrupt handling during TFM instruction [David Ladd]
+
+Version 0.34, Sun  7 Aug 2016
+
+  * Zoom controls fixed or added where missing
+  * Dragon 200-E "CLS 9" alternate text mode fixed
+  * Control+C to quit removed from SDL UI (use Control+Q as per the docs)
+  * SDL2 support
+  * -vo help lists video modules by UI
+  * Large structural changes to support more machine types
+  * Pixel rate doubled anticipating more machine types (could be slower)
+  * NTSC filtering renderer: -ccr simulated (note: slower than 5bit)
+  * Add cross-colour rendering menu to GUI
+  * PAL-M magenta-green artefacting supported with -ccr simulated
+  * Fix treatment of empty drives in DOS carts
+  * Initial IDE code [by Alan Cox]
+
+Version 0.33, Fri 22 May 2015
+
+  * Capped mouse polling frequency (could cause high CPU load).
+  * Slight SAM timing tweak.
+  * Fix builtin machine "coco2bus" to use 6847T1.
+  * Tape rewriting now emits sine waves instead of square waves.
+  * New option -tape-ao-rate _hz_ specifies output samplerate for wav files.
+  * New option -timeout-motoroff _s_ quits _s_ seconds after tape motor off.
+  * New option -snap-motoroff _file_ creates snapshots on tape motor off.
+  * New option -tape-channel-mode _mode_ specifies how to read stereo audio
+    files: mix, left or right.
+  * New option -config-print-all prints even default values.
+  * Fix PIA address decode for Dragon 32, Dragon 64.
+  * Timing fixes in fast tape loading.
+  * Recognise key shortcuts in GTK+ tape/drive control dialogues.
+  * Unverified fix for hang in Windows using SDL audio.
+  * IRQ timing tweaked, passes Stewart Orchard's PAL timing test v1.2.
+  * Special-case autorun instructions for some tape programs.
+  * Building from source now uses GNU build system (autotools).
+  * Fix Windows menu selection event drops.
+  * Warn about unrecognised BASIC ROM CRCs.
+  * MPI support.
+  * Add 'eject' option to disk menus on Windows/Mac OS.
+  * Assume single density JVC/DSK where sectors = 10.  Disable with
+    -no-disk-auto-sd.
+  * Fix hook-based printing on switching machines.
+  * Fix GTK+ tape dialog when attached from command line.
+  * Fix Dragon PAL padding.  Passes Stewart Orchard's PAL tests v1.3.
+  * Work around breakpoint re-add bug.
+
+Version 0.32, Tue 22 Apr 2014
+
+  * Fix keyboard handling - CoCo Tetris now playable again.
+  * SDL, CoreAudio: allow -ao-fragments more than 1.
+  * Binary file loading no longer assumes 64K RAM organisation.
+  * Warn about use of deprecated options.
+  * Add joystick menus to GTK+ interface.
+  * New option -ao-format to select audio sample format.
+  * Fix 6309 timing issue (CMPU, CMPS).
+  * Fix issue with 6309 STBT instruction.
+  * Use endian.h where available.
+  * Preserve extra VDK header information in rewritten images.
+  * New Windows UI adding menus to the SDL window.
+  * Detect headerless JVC image geometry from OS-9 filesystem information.
+  * New option -no-disk-auto-os9 disables automatic geometry detection.
+  * Recognise ".os9" as extension for JVC images, ignores -no-disk-auto-os9.
+  * Deprecated option -disk-jvc-hack (now ignored in favour of above).
+
+Version 0.31, Thu 28 Nov 2013
+
+  * New option -timeout quits emulator after number of seconds.
+  * Differentiate between combined and concatenated ROMs.
+  * Ctrl+Shift+I toggles Inverse Text.
+  * New option -invert-text.
+  * Added external character generator support.
+  * Many new keymaps.  -keymap help for a list.
+  * New option -machine-keyboard selects layout for machine.
+  * New machine Dragon 200-E.
+  * Shift+Return presses Caps Lock combo in translated mode.
+  * Ctrl+Shift+H presses "Pause" button.
+  * Shift+Space presses Pause Output combo in translated mode.
+  * Fix CoCo RAM select detection.
+  * More accurate sound timing.
+  * SDL, CoreAudio: render audio directly into callback buffer.
+  * New options -ao-fragments, -ao-fragment-ms, -ao-fragment-frames.
+  * Rename option -ao-buffer-samples to -ao-buffer-frames.
+
+Version 0.30, Wed 18 Sep 2013
+
+  * Minimal CoCo BASIC printing support using ROM intercept.
+  * Fix SAM clock stretching on slow/fast transition.
+  * New -default-machine option.
+  * New -machine-cart option specifies default cart per machine.
+  * Successive files on command line attached intelligently.
+  * New -ao-device option supported by ALSA, OSS, Pulse and Sun.
+  * New -debug-fdc option selects FDC debug options (-1 for all).
+  * New -debug-file option selects file loading debug options (-1 for all).
+  * New machine and ROM definitions for Dynacom MX-1600 (CoCo clone).
+  * Add "pause switch".  Pause key in SDL & GTK+ UIs toggles.
+  * Sound MUX levels and single-bit sound interaction improved.
+  * HD6309: some behaviour verified.
+  * VDG: 6847T1 emulated, selectable with -vdg-type.  Default for CoCo.
+  * Fix printing on Dragon 32.
+  * Automatically extend virtual disks on write.
+  * Shift+F12 latches the rate limit toggle.
+  * Revamped joystick handling, added mouse interface.
+  * Fixed PAL CoCo video timing.
+  * GDB target support.  A patched GDB supporting 6809 is recommended.
+  * Recognise .ccc as a cartridge ROM image extension.
+  * Many more menu items in Mac OS X user-interface.
+  * Support the Orchestra 90-CC cartridge.
+  * New -ao-channels option.
+  * New -config-print option.
+
+Version 0.29, Sat 29 Dec 2012
+
+  * New PIA & keyboard code supports matrix ghosting.
+  * Fixed emulation of Dragon 32 with 64K.
+  * Underlying video module rewrite.
+  * VDG sub-scanline mode switching more accurate (CSS & !INT/EXT delayed).
+  * Use vertex and texture coord arrays in OpenGL code.
+  * Alias '²' to Clear for French keyboards.  TODO: generic key bind ability.
+  * Fake ACIA responses to fix 32K mode autorepeat.  TODO: real ACIA support.
+  * Curses video module removed - incompatible with new VDG/video code.
+  * SDL YUV video module tries harder to find accelerated overlay.
+  * "Becker" port supported in RS-DOS.
+  * Various CPU timing fixes.
+  * Hitachi 6309 support (unverified) with "-machine-cpu 6309".
+  * Added -c option (must be first one) to specify configuration file.
+
+Version 0.28, Sat 12 May 2012
+
+  * New keyboard map: Canadian French [Pierre Sarrazin]
+  * CPU core optimisations.
+  * VDG palette tweaks.
+  * Allow user to specify rom lists with -romlist, and inspect the currently
+    defined lists with -romlist-print.
+  * Similarly, allow user to specify ROM CRC32s that are equivalent with
+    -crclist, printing current list with -crclist-print.
+  * Use ROM CRCs to determine which breakpoints are effective.
+  * Force CRC matching (breakpoints only based on arch) with -force-crc-match.
+  * Add -tape-write option to specify an output tape file on the command line.
+  * Add -type option to type a string into BASIC.
+  * Permit incomplete last tracks in JVC disk images.
+  * Removed GP32 and NDS support from main tree.
+  * Remove obsolete GTK+ version 1 file requester.
+  * Test for and use GLib list and hash functions if available.
+  * Data bus state updated during NVMA (fixes Manic Miner protection).
+  * -tape-pad-auto leader thresholds updated.
+
+Version 0.27, Tue 27 Sep 2011
+
+  * CPU fixes: verified flags set/cleared in SEX and DAA instructions.
+  * Tape fixes: various usability fixes.
+  * VDK files: fill in header bytes more completely when writing.
+
+Version 0.26, Mon  1 Aug 2011
+
+  * SAM-VDG interaction fix - 48 byte-per-line mode now works.
+  * More resilient fast tape loading.
+
+Version 0.25, Sat 18 Jun 2011
+
+  * New GTK+2 user-interface.
+  * New GtkGLExt video module.
+  * Fixed initial TV type bug.
+  * Handle >1 channel in tape audio files.
+  * New audio options: -ao-rate, -ao-buffer-ms, -ao-buffer-samples, -volume.
+  * New options: -kbd-translate, -disk-write-back.
+  * New PulseAudio sound module.
+  * New Linux joystick module.
+  * CPU emulation accuracy improved [from doc by Darren Atkinson]
+  * Tape audio feedback while loading CAS files (AUDIO ON).
+  * Tape reattach bug fixed.
+  * Fixed some CPU timings.
+  * Dragon 64 IRQ vector fix.
+  * Added ability to print to file or pipe.
+  * Ability to define new machines or cartridges.
+  * Fixed crash bug accessing non-existent disk side 2.
+
+Version 0.24, Wed  8 Sep 2010
+
+  * Improved ALSA sound module.
+  * SDL video module fixes.
+  * Use target-specific threading code in SDL audio on Windows.
+  * Special "-tapehack" mode to rewrite tidied CAS files.
+  * Search worldofdragon.org ROM filenames.
+  * More accurate slow-to-fast SAM transitions.
+  * NDS: bring up to date with new libnds.
+  * NDS: faster video, audio fixes, better file requester.
+  * NDS: sleep while lid is closed.
+  * Support direct loading of DragonDOS binaries.
+  * Implement remaining known illegal instructions.
+
+Version 0.23, Mon 30 Nov 2009
+
+  * Full CoCo RAM select emulation.
+  * Implemented SAM FAST mode.
+  * Fullscreen fixes.
+  * Better handling of -load and -run options.
+  * Include "dark orange" VDG text mode colour.
+  * Initial ALSA sound module (-ao alsa).
+  * Read a configuration file on startup.
+  * Sun audio fixes.
+  * Experimental curses user interface.
+  * Run first non-option argument.
+  * WD279x fix.
+  * Fixed segfault in SDL joystick code.
+  * Work around nasty hang bug in SDL's pulseaudio module.
+  * Add ROM search path to Windows build.
+  * Add -gl-filter option to select OpenGL texture filter.
+  * Support directly loading ASCII files (.bas, .asc) as gapped ASCII BASIC.
+  * Write-back support for VDK and JVC disk images.
+  * Request filename when creating a blank disk.
+
+Version 0.22, Tue 23 Dec 2008
+
+  * Feed audio output back to single bit sound input.
+  * Update GP32 build to use EABI libs and devkitARM crt0.
+  * Don't build DS stuff in thumb mode.
+  * Initialise RAM to pattern.
+  * Insert fake leader on tape change.
+  * Fix OpenGL texture "fringing".
+  * Sun audio fixes.
+  * Honour user-specified RAM size again.
+  * Fix WD2791/3 side compare plus other fixes to help CoCo NitrOS9.
+  * Find a machine the user has ROMs for if they don't specify.
+  * Add -load and -run options.
+  * Add simple joystick swap with Control+Shift+J.
+  * Disable fullscreen while showing a file requester.
+  * Replace README with a manual.
+  * Fake trailing leader byte for CAS files.
+
+Version 0.21, Thu 24 Apr 2008
+
+  * Fix border colour in RG6, CSS=0.
+  * Input abstraction layer.
+  * NDS: Render video as 4 x 3 grid of 4-bit colour sprites.
+  * NDS: Use NDS VCOUNT writability to lock display to 50Hz when appropriate.
+  * NDS: Major UI improvements.
+  * NDS: Sound support.
+  * GP32: Fix chatboard support with new state-machine based scanner.
+  * Trace mode fixes (SYNC, CWAI).
+  * Support changing of SAM RAM configuration.
+  * More accurate single-bit sound.
+  * Variable MPU rate support configurable.
+
+Version 0.20, Wed 27 Feb 2008
+
+  * Don't show artefacted colours for CSS=0.
+  * Better emulation of undocumented 6809 behaviour.
+  * New joystick axis and button mapping options.
+  * Add GTK+-2 file requester.
+  * Mid-instruction peripheral state sync.
+  * Restructure CPU core to more accurately reflect data sheet.
+  * PIA code not so intimately tied to emulator code.
+  * New 5-bit NTSC cross-colour renderer.
+  * NTSC cross-colour phase saved with snapshots.
+
+Version 0.19, Tue 26 Jun 2007
+
+  * WD279x Read Address command implemented.
+  * VDG fixes.
+  * Delta bugs in initialisation and drive select fixed.
+  * Better error reporting.
+  * Better compatibility with old snapshots.
+  * Performance improvements in OpenGL driver.
+  * DMK virtual disk reading bugfix.
+  * Virtual disk image file write support (DMK format only).
+  * Write protect toggles in SDL user interface.
+  * Attached virtual disk filenames written to snapshots.
+
+Version 0.18, Fri  9 Mar 2007
+
+  * New 'configure' script.
+  * New 'null' sound driver replaces 'rtc'.
+  * Initial support for Nintendo DS (NDS).
+  * Slight speed hacks for GP32/NDS.
+  * Correct amount of scanlines rendered.
+  * Added --version option.
+  * Fixed potential infinite loop in disk emulation.
+  * Single-density disk support.
+  * Ability to insert blank disks (Ctrl+Shift+[1-4]).
+  * DMK virtual disk format support.
+  * Premier Delta System DOS cartridge support.
+  * Added -dostype option.
+
+Version 0.17, Tue 15 Aug 2006
+
+  * Map '~' to Shift+'@' in translation mode.
+  * Hopefully fix windows32 build.
+  * Tape loading bugs fixed.
+  * Fix VDG accesses >32K.
+  * More accurately emulate Dragon 32 behaviour in map type 1.
+  * Added frameskip option (-fskip).
+  * Added rate limiter inhibit by holding F12.
+
+Version 0.16, Tue  8 Aug 2006
+
+  * Added -ram option.
+  * CRC16 fixes.
+  * RSDOS fixes.
+  * Video timing code updated.
+  * Added -pal and -ntsc options.
+  * Fixed 16-byte video modes.
+  * Fixed keyboard translation for Windows.
+  * Support an illegal indexed addressing mode accidentally used by the first
+    release of Glove.
+  * Support using audio files for cassette input.
+  * GP32 speed hacks (still not perfect).
+
+Version 0.15, Sun 25 Jun 2006
+
+  * All registers now local to 6809 core main loop.
+  * New indexed addressing code should be faster.
+  * Simplified module system.
+  * New cartridge code.  Now usable on GP32.
+  * Semigraphics mode 6 implemented.
+  * Virtual cassette writing supported.
+  * While reading virtual cassettes, fake leader bytes are inserted when
+    cassette motor is turned on.
+  * Windows32 UI has separate save dialog.
+  * Timing issue with short branches fixed.
+  * WD2797 emulation now implements CRC16.
+
+Version 0.14, Sat 22 Oct 2005
+
+  * Implemented PAL timing for Dragon 32, Dragon 64.
+  * Added new machine, 'tano'.
+  * Implemented sub-scanline rendering (not GP32).
+  * Fixes to snapshot code.
+  * Fullscreen toggle added.
+  * AD CPU rate removed from GP32 build.
+  * New -snap option.
+  * Fix to Windows32 UI module (retains CWD).
+  * 6809 core optimisations.
+
+Version 0.13, Fri 26 Aug 2005
+
+  * Fixed OpenGL resize problem.
+  * Fixed OpenGL border alignment problem.
+  * Trace mode now disassembles instructions.
+  * Virtual floppy timings more accurate, 'formatting' supported.
+  * JVC virtual disk format supported.
+  * Preliminary CoCo disk support (some stuff works, NitrOS-9 doesn't).
+  * 6809-PIA interrupt interaction more accurate (fixes some games).
+  * Various command-line options added.
+
+Version 0.12, Thu 28 Jul 2005
+
+  * New OpenGL video driver.  Allows architectures without Xv extension
+    but with fast 3D graphics card to do hardware scaling.
+  * Disk writing (in memory only).
+  * Address-dependent CPU rate implemented (GP32 clock rate upped to
+    80MHz to cope).
+
+Version 0.11, Thu 13 Jan 2005
+
+  * Modularised almost everything.  Binary can contain multiple drivers
+    for video, sound and ui.  User can pick one on startup and, hopefully,
+    switch between them on the fly.
+  * Added resizable SDL-YUV (Xv-accelerated where possible) video module.
+  * Added JACK sound module.
+  * Added NULL sound module (Linux-only: uses /dev/rtc to sync).
+  * Eliminated busy-wait from SDL sound module.
+  * Unified Unix and GP32 Makefiles.
+  * Added ability to simulate NTSC video artefacts for hi-res graphics.
+  * Sound fixes for unsigned audio interferes less with other audio.
+  * GP32 chatboard support (thanks to Mirko's SDK).
+  * Added 'translation' mode to SDL keyboard driver.
+  * Added French & German keyboard mappings for 'raw' mode to SDL driver.
+  * Ctrl+D (insert disk) replaced with Ctrl+[1-4] in SDL interface.
+
+Version 0.10, Sun 27 Jun 2004
+
+  * Fixed Sun audio code broken by v0.9.
+  * Fix SEX bug.  Pretty much everything runs correctly now (including
+    Racer Ball, Rommel 3D, Android Attack).
+  * Stopped using GP32 SDK sound code, adapted some of Jouni 'Mr.Spiv'
+    Korhonen's code.
+  * Refactored code to something a little more logical.
+  * MacOS X 'Carbon' UI contributed by Stuart Teasdale.
+  * Use C99 types instead of SDL ones except in SDL-based drivers.
+  * Wrote faster GP32-specific VDG routines.
+
+Version 0.9, Sat 15 May 2004
+
+  * More timing fixes.
+  * Video rendering optimisations.
+  * s/LICENCE/COPYING/
+  * Basic GP32 menu system added.
+  * Ability to switch between Dragon and CoCo ROMs and keymaps.
+  * Can insert disks (but still only into drive 1).
+
+Version 0.8, Mon  3 May 2004
+
+  * Added GTK interface option (default) to Unix build.
+  * Timing fixes - most things play at a better speed now.
+
+Version 0.7, Wed  7 Apr 2004
+
+  * Added basic Unix joystick support (using SDL).
+  * PIA0 addressing more specific (D64-style), OS-9 boots!
+  * PIA implementation simplified.
+  * Debug level configurable at build time (defaults to "not too much").
+  * Keyboard handling changed; GP32 version will be easier to switch to
+    CoCo mode when the time comes.
+
+Version 0.6, Thu 17 Apr 2003
+
+  * Joystick support available in the GP32 version.

@@ -1,0 +1,339 @@
+# The default way of generating Windows resource files is manual placement.
+# Well, I suppose people actually using Windows dev tools probably have GUI
+# editors and what-not, but it seems that manual placement is what it all boils
+# down to in the end.
+#
+# So because I'm not going to faff about adjusting X and Y values all the time,
+# I created this layout language.  It's almost, but not quite, entirely unlike
+# HTML.  Also, it's only exactly as featureful as it needs to be for anything
+# I've done so far, so don't expect super flexibility and DO expect bugs.
+#
+# The general syntax is: [ATTR=value]... TAG [text]
+#
+# [text] only read (to end of line) for the TAGs that need content.
+#
+# Run "tools/win2rc" with "--help" for more information.
+#
+# Strings are included in the resource file verbatim enclosed in double quotes,
+# so you can break up the string by just including your own pairs of double
+# quotes.  That's what's happening in the About dialog to reference C macros
+# defined while compiling.  Given win2rc doesn't know anything about that, you
+# can't depend on its algorithm for approximating text widths if you do that.
+#
+# NOTE: this file is assumed to be in UTF-8, win2rc will convert strings to
+# WINDOWS-1252.
+#
+# NOTE: case matters.  And "centre" is spelt correctly.
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# About dialog
+
+pad=5 id=ABOUT dialog About XRoar
+
+table
+tr td align=centre width=194 text " to_str(PACKAGE_TEXT) "
+tr td align=centre width=194 text Copyright © " to_str(PACKAGE_YEAR) " Ciaran Anscomb <xroar@6809.org.uk>
+tr td align=centre text https://www.6809.org.uk/xroar/
+end table
+
+pad_top=5 xalign=right id=IDOK button &Close
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# TV controls dialog
+
+pad=5 id=TV_CONTROLS dialog XRoar · TV controls
+
+h1 Audio
+
+table
+tr td width=54 text Volume
+   td width=86 id=VOLUME spinbox
+end table
+
+h1 Video
+
+table
+tr td width=54 text TV input
+   td width=86 id=TV_INPUT combobox
+tr td text Brightness
+   td id=BRIGHTNESS spinbox
+tr td text Contrast
+   td id=CONTRAST spinbox
+tr td text Colour
+   td id=SATURATION spinbox
+tr td text Hue
+   td id=HUE spinbox
+tr td text Picture Area
+   td id=PICTURE combobox
+tr td text 60Hz Scaling
+   td id=NTSC_SCALING checkbox
+end table
+
+h1 Composite Video
+
+table
+tr td width=54 text Renderer
+   td width=86 id=RENDERER combobox
+tr td text F(s)
+   td id=FS combobox
+tr td text F(sc)
+   td id=FSC combobox
+tr td text System
+   td id=SYSTEM combobox
+tr td text Colour Killer
+   td id=COLOUR_KILLER checkbox
+end table
+
+pad_top=5 xalign=right id=IDOK button &Close
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Tape control dialog
+
+pad=5 id=TAPE_CONTROLS dialog XRoar · Cassette tapes
+
+h1 Input
+
+id=INPUT_FILENAME style=ownerdraw hexpand=1 text
+pad_top=2 pad_bottom=4 width=100 height=56 id=INPUT_PROGRAMLIST listview
+
+table
+tr td width=112 id=INPUT_POSITION scrollbar
+   td id=INPUT_POSITION width=20 pad_top=2 pad_left=2 text 00:00
+end table
+
+table
+tr td id=TAPE_FAST checkbox Fast loading
+   td id=TAPE_PAD_AUTO checkbox CAS padding
+   td id=TAPE_REWRITE checkbox Rewrite
+end table
+
+pad=1 nop
+
+table
+tr td id=INPUT_PLAY button Play
+   td id=INPUT_PAUSE button Pause
+   td id=INPUT_REWIND button Rewind
+   td id=INPUT_EJECT button Eject
+   td id=INPUT_INSERT button Insert…
+end table
+
+pad=2 nop
+
+h1 Output
+
+id=OUTPUT_FILENAME style=ownerdraw hexpand=1 text
+
+table
+tr td width=112 id=OUTPUT_POSITION scrollbar
+   td id=OUTPUT_POSITION width=20 pad_top=2 pad_left=2 text 00:00
+end table
+
+table
+tr td id=OUTPUT_RECORD button Record
+   td id=OUTPUT_PAUSE button Pause
+   td id=OUTPUT_REWIND button Rewind
+   td id=OUTPUT_EJECT button Eject
+   td id=OUTPUT_INSERT button Insert…
+end table
+
+pad_top=5 xalign=right id=IDOK button &Close
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Drive control dialog
+
+# predeclare IDs so that they're sequential for each control type
+
+id=DRIVE1_FILENAME id text
+id=DRIVE2_FILENAME id text
+id=DRIVE3_FILENAME id text
+id=DRIVE4_FILENAME id text
+
+id=DRIVE1_WE id checkbox
+id=DRIVE2_WE id checkbox
+id=DRIVE3_WE id checkbox
+id=DRIVE4_WE id checkbox
+
+id=DRIVE1_WB id checkbox
+id=DRIVE2_WB id checkbox
+id=DRIVE3_WB id checkbox
+id=DRIVE4_WB id checkbox
+
+id=DRIVE1_INSERT id button
+id=DRIVE2_INSERT id button
+id=DRIVE3_INSERT id button
+id=DRIVE4_INSERT id button
+
+id=DRIVE1_NEW id button
+id=DRIVE2_NEW id button
+id=DRIVE3_NEW id button
+id=DRIVE4_NEW id button
+
+id=DRIVE1_EJECT id button
+id=DRIVE2_EJECT id button
+id=DRIVE3_EJECT id button
+id=DRIVE4_EJECT id button
+
+id=HD0_ATTACH id button
+id=HD1_ATTACH id button
+
+id=HD0_NEW id button
+id=HD1_NEW id button
+
+id=HD0_DETACH id button
+id=HD1_DETACH id button
+
+pad=5 id=DRIVE_CONTROLS dialog XRoar · Floppy disks
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text Drive 1
+   hexpand=1 td id=DRIVE1_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+table
+tr td id=DRIVE1_WE checkbox Write enable
+   width=76 td id=DRIVE1_WB checkbox Write back
+   td id=DRIVE1_INSERT button Insert…
+   td id=DRIVE1_NEW width=24 button New…
+   td id=DRIVE1_EJECT button Eject
+end table
+
+pad=2 nop
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text Drive 2
+   hexpand=1 td id=DRIVE2_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+table
+tr td id=DRIVE2_WE checkbox Write enable
+   width=76 td id=DRIVE2_WB checkbox Write back
+   td id=DRIVE2_INSERT button Insert…
+   td id=DRIVE2_NEW width=24 button New…
+   td id=DRIVE2_EJECT button Eject
+end table
+
+pad=2 nop
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text Drive 3
+   hexpand=1 td id=DRIVE3_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+table
+tr td id=DRIVE3_WE checkbox Write enable
+   width=76 td id=DRIVE3_WB checkbox Write back
+   td id=DRIVE3_INSERT button Insert…
+   td id=DRIVE3_NEW width=24 button New…
+   td id=DRIVE3_EJECT button Eject
+end table
+
+pad=2 nop
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text Drive 4
+   hexpand=1 td id=DRIVE4_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+table
+tr td id=DRIVE4_WE checkbox Write enable
+   width=76 td id=DRIVE4_WB checkbox Write back
+   td id=DRIVE4_INSERT button Insert…
+   td id=DRIVE4_NEW width=24 button New…
+   td id=DRIVE4_EJECT button Eject
+end table
+
+pad=2 nop
+
+id=DRIVE_CYL_HEAD align=centre text Dr ? Tr ?? He ?
+
+pad=2 nop
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text HD 0
+   hexpand=1 td id=HD0_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+hexpand=1 table
+hexpand=1 tr hexpand=1 td
+   td id=HD0_ATTACH button Attach…
+   td id=HD0_NEW width=24 button New…
+   td id=HD0_DETACH button Detach
+end table
+
+pad=2 nop
+
+hexpand=1 table
+hexpand=1 tr td hexpand=0 text HD 1
+   hexpand=1 td id=HD1_FILENAME style=ownerdraw hexpand=1 text
+end table
+
+hexpand=1 table
+hexpand=1 tr hexpand=1 td
+   td id=HD1_ATTACH button Attach…
+   td id=HD1_NEW width=24 button New…
+   td id=HD1_DETACH button Detach
+end table
+
+xalign=right id=IDOK button &Close
+
+# - - -
+
+# New HD interstitial dialog
+
+id=HD_SIZE_0 id radio
+id=HD_SIZE_1 id radio
+id=HD_SIZE_2 id radio
+id=HD_SIZE_3 id radio
+
+pad=5 id=HD_SIZE dialog XRoar · New HD size
+
+text Select new HD size:
+
+id=HD_SIZE_0 radio 20MiB
+id=HD_SIZE_1 radio 40MiB
+id=HD_SIZE_2 radio 128MiB
+id=HD_SIZE_3 radio 256MiB
+
+pad_top=5 hexpand=1 table
+hexpand=1 tr hexpand=1 td
+  td id=IDCANCEL button &Cancel
+  td id=IDOK button &Create…
+end table
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Printer control dialog
+
+# predeclare IDs so that they're sequential for each control type
+
+id=PRINTER_NONE id radio
+id=PRINTER_FILE id radio
+
+pad=5 id=PRINTER_CONTROLS dialog XRoar · Printer control
+
+id=PRINTER_NONE group=DEST radio No printer
+
+pad_top=1 pad_bottom=1 height=1 hseparator
+
+id=PRINTER_FILE radio Print to file
+
+hexpand=1 table
+hexpand=1 tr td width=112 id=PRINT_FILENAME style=ownerdraw hexpand=1 text
+   td id=PRINT_ATTACH button Attach…
+end table
+
+pad_top=1 pad_bottom=1 height=1 hseparator
+
+hexpand=1 table
+hexpand=1 tr td width=62 text Characters printed:
+   hexpand=1 td id=PRINT_CHARS text 0
+   td id=PRINT_FLUSH button Flush
+end table
+
+pad_top=1 pad_bottom=1 height=1 hseparator
+
+pad_top=5 xalign=right id=IDOK button &Close

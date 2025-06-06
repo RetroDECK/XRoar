@@ -1,0 +1,2635 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename xroar.info
+@dircategory Emulators
+@direntry
+* XRoar: (xroar).               Dragon & Tandy CoCo emulator.
+@end direntry
+
+@include version.texi
+
+@settitle XRoar Dragon Emulator Manual
+@afourpaper
+@c @setchapternewpage off
+@ifclear VERSION
+@set VERSION Unknown
+@end ifclear
+@c %**end of header
+
+@c @iftex
+@c @macro myuref {link, text}
+@c @uref{\link\, \text\}@footnote{\link\}
+@c @end macro
+@c @end iftex
+
+@c @ifnottex
+@macro myuref {link, text}
+@uref{\link\, \text\}
+@end macro
+@c @end ifnottex
+
+@copying
+This manual is for XRoar (version @value{VERSION}), a Dragon and Tandy 8-bit
+computer emulator.
+
+Copyright @copyright{} 2025
+Ciaran Anscomb.
+@end copying
+
+@titlepage
+@title XRoar @value{VERSION}
+@subtitle Dragon and Tandy 8-bit computer emulator
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@c This section DOES appear at the top of HTML output, but DOES NOT appear in
+@c the PDF.  Keep specific information here to a minimum.
+
+@node Top
+@top About this manual
+
+This manual is for XRoar (version @value{VERSION}), a Dragon and Tandy 8-bit
+computer emulator.
+
+XRoar is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+XRoar is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Introduction
+@chapter Introduction
+
+XRoar emulates the Dragon 32/64; Tandy Colour Computers 1, 2 and 3; the Tandy
+MC-10; and some other similar machines or clones.  It runs on a wide variety of
+platforms.  Emulated hardware includes:
+
+@itemize @bullet
+@item Dragon 32, 64, and 200-E; Tandy CoCo 1, 2, & 3; Tandy MC-10; Matra & Hachette Alice 4K.
+@item Dragon Professional and Tandy Deluxe Colour Computer prototypes, both including the AY-3-891x sound chip.
+@item DragonDOS, Delta and RS-DOS floppy disk controller cartridges.
+@item Orchestra 90-CC stereo sound cartridge.
+@item Games Master Cartridge, including the SN76489 sound chip.
+@item Glenside IDE cartridge, with IDE hard disk image support.
+@item NX32 and MOOH RAM expansions, with SPI and SD card image support.
+@end itemize
+
+Other features include:
+
+@itemize @bullet
+@item Raw and translated keyboard modes.
+@item Read and write cassette tape images.
+@item Read and write floppy disk images.
+@item Becker port for communication with remote servers.
+@item Save and load machine snapshots.
+@item GDB target for remote debugging.
+@end itemize
+
+XRoar is easily built from source under Linux, and binary packages are provided
+for Windows and Mac OS X+.
+
+XRoar can also be compiled to WebAssembly, and redistributing it in this form
+may provide a convenient way for users to run your Dragon software.  See
+@myuref{https://www.6809.org.uk/xroar/online/, XRoar Online} for an example.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Recent changes
+@section Recent changes
+
+Changes in version 1.8 include:
+
+@itemize
+
+@item HD mounting from drive control dialog.  @xref{Drive control}.
+@item New MCX128 cartridge support for MC-10.
+@item CoCo 3 GIME behaviour fixes.
+@item CoCo 3 Monitor detect line asserted when RGB TV input selected.
+@item Becker port latency fixes.
+@item More flexible command-line trap options.  @xref{Debugging options}.
+
+@end itemize
+
+Previous changes in 1.x include:
+
+@strong{Important:} Floppy disk write-back is now @emph{enabled} by default.
+Writes to images held in memory will overwrite the on-disk file when ejected
+(or quitting XRoar).  You can get the old file-preserving default behaviour
+back with @option{-no-disk-write-back}.
+
+Gamepad mapping files can provide more consistent button layouts.
+@xref{Gamepad mapping}.
+
+RAM organisation selection with @option{-ram-org}, and initialisation pattern
+selection with @option{-ram-init}.
+
+The @option{-ccr simulated} renderer is replaced with more CPU-intensive code
+that also handles PAL.  The old NTSC-only renderer is still available using
+@option{-ccr partial}.
+
+Larger or smaller picture area can be selected, and XRoar can stretch 60Hz
+output to reproduce the apparent aspect ratio seen on CRTs in those countries.
+
+Many video options can be changed on the fly in a new TV Controls dialog.
+
+Screenshots in PNG format can be saved if XRoar is built with libpng.
+
+More machines are emulated than in 0.x.  A new snapshot format that preserves
+more state was required to support these.  Old snapshots should still load for
+now, though this will likely be removed in time.
+
+Tape emulation now supports manual pause control, required for using the MC-10
+& Alice, as they have no remote tape motor control.
+
+HD/SD images are now specified with @option{-load-hd0} and @option{-load-hd1}.
+IDE images with a header should be distinguished from headerless files by
+giving them a @file{.ide} extension.
+
+MPI slot configuration is now per-cart rather than global.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Getting started
+@chapter Getting started
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Prerequisites
+@section Prerequisites
+
+To run XRoar, you will need to make sure you have the firmware ROM images
+available for the system you wish to emulate.  These images can be transferred
+from your original machine (with some effort, outside the scope of this
+document) or more likely found online on one of the archive websites.  Where
+XRoar looks to find these images depends on your host OS; the rest of this
+chapter will go into detail.
+
+Firmware ROM image files should have a @file{.rom} extension, and be headerless
+(so their file size will be an exact power of two bytes).  For most use cases,
+you'll need the BASIC ROM image(s) and a disk controller ROM image.  Here are
+the expected filenames and sizes (in bytes) for some of the most
+commonly-required images:
+
+@multitable {Tandy Microcolour BASIC (MC-10)} {d200e_26.romXX} {32K (32768 bytes)}
+@headitem Firmware ROM @tab Filename @tab File size
+@item Dragon 32 BASIC @tab @file{d32.rom} @tab 16384
+@item Dragon 64 32K BASIC @tab @file{d64_1.rom} @tab 16384
+@item Dragon 64 64K BASIC @tab @file{d64_2.rom} @tab 16384
+@item DragonDOS @tab @file{ddos10.rom} @tab 8192
+@item Tandy Colour BASIC @tab @file{bas13.rom} @tab 8192
+@item Tandy Extended BASIC @tab @file{extbas11.rom} @tab 8192
+@item Tandy Super ECB (CoCo 3) @tab @file{coco3.rom} @tab 32768
+@item Tandy Super ECB (PAL CoCo 3) @tab @file{coco3p.rom} @tab 32768
+@item Tandy RS-DOS @tab @file{disk11.rom} @tab 8192
+@item Tandy Microcolour BASIC (MC-10) @tab @file{mc10.rom} @tab 8192
+@end multitable
+
+Other machines (e.g. the less common Dragon 200-E) will need a different set of
+ROM images, and supported peripherals may also need their own firmware.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Getting started under Linux/Unix
+@section Getting started under Linux/Unix
+
+If you configure a suitable Apt repository under Debian or Ubuntu, you should
+simply be able to @command{apt install xroar} (as root, or using
+@command{sudo}).  See the @myuref{https://www.6809.org.uk/xroar/, XRoar
+homepage} for links to an Apt repository for Debian, or to Launchpad for
+Ubuntu.
+
+Otherwise, if you are comfortable building from source, see @ref{Building from
+source}.
+
+In your home directory, create directories @file{~/.xroar/} and
+@file{~/.xroar/roms/}:
+
+@example
+$ mkdir -p ~/.xroar/roms
+@end example
+
+Copy your firmware ROM images (@ref{Prerequisites}) into @file{~/.xroar/roms/}.
+For example, covering the most common machines, you might end up with a
+directory looking like this:
+
+@example
+$ ls -l ~/.xroar/roms/
+[...]
+-rw-r--r-- 1 user group  8192 Jan  1  1982 bas13.rom
+-rw-r--r-- 1 user group 32768 Jul 30  1986 coco3.rom
+-rw-r--r-- 1 user group 32768 Jul 30  1986 coco3p.rom
+-rw-r--r-- 1 user group 16384 Aug  1  1982 d32.rom
+-rw-r--r-- 1 user group 16384 Aug  1  1983 d64_1.rom
+-rw-r--r-- 1 user group 16384 Aug  1  1983 d64_2.rom
+-rw-r--r-- 1 user group  8192 Jun  1  1983 ddos10.rom
+-rw-r--r-- 1 user group  8192 Jan  1  1982 disk11.rom
+-rw-r--r-- 1 user group  8192 Jan  1  1982 extbas11.rom
+-rw-r--r-- 1 user group  8192 Oct  1  1983 mc10.rom
+@end example
+
+Start the emulator by typing @command{xroar} at the command line, or by
+selecting it from @clicksequence{Applications @click{} Games} if your
+environment provides an applications menu.
+
+Running @command{xroar --help} will display the supported command line options.
+Each of the command line options can also appear in a configuration file, which
+should be called @file{~/.xroar/xroar.conf}.  You can configure many defaults
+and even extra machines and cartridges in this file.  See @ref{Configuring
+XRoar} for more details.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Getting started under Windows
+@section Getting started under Windows
+
+The simplest way to get going under Windows is to unpack the @file{.zip} file
+and copy all your ROM images into the created subdirectory, alongside the
+executable.  You can also create a configuration file here called
+@file{xroar.conf}.  Double click @file{xroar.exe} to run, and XRoar will look
+in the same directory that you start it from, and everything should work.
+
+However, if you want a more organised installation where you don't have to
+re-copy files around every time you upgrade, read on.
+
+In your user profile, there should exist a LocalAppData directory.  This is
+something Windows calls a ``Known Folder''.  You should be able to browse to it
+by entering @file{%LOCALAPPDATA%} as a path in an explorer window.
+@footnote{The reason for using the @emph{local} version version of the AppData
+directory under Windows is that recent versions of Windows may offload files in
+other places to the cloud---I'm told this can happen without it ever informing
+the user---and we want to keep files local to the machine, as cloud access may
+require specific application support.}
+
+Under @file{%LOCALAPPDATA%}, create a subdirectory called @file{XRoar}.  Then
+within @emph{that}, create a further subdirectory named @file{roms}.  You can
+then copy your ROM images into @file{%LOCALAPPDATA%\XRoar\roms\}.
+
+Start the emulator by double clicking @file{xroar.exe} or, if you installed the
+@file{.msi}, by selecting XRoar from the start menu.
+
+@c XXX check that the MSI actually does that
+
+You can also run XRoar from the command line, and it supports the same options
+as under Linux/Unix.  By default GUI applications under Windows have no access
+to a console, so run XRoar with @option{-C} as the very first option and it
+will first try to attach to the console of the parent process---that is, send
+text output to the shell window you have open---and if that fails, it will
+create its own console window.  This lets you see various notifications that
+can be useful when determining why something isn't working the way you expect.
+
+For example, run @command{xroar.exe -C --help} to display a list of the
+supported command line options.  Each of the command line options can also
+appear in a configuration file, which should be called
+@file{%LOCALAPPDATA%\XRoar\xroar.conf}.  You can configure many defaults and
+even extra machines and cartridges in this file.  See @ref{Configuring XRoar}
+for more details.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Getting started under Mac OS X+
+@section Getting started under Mac OS X+
+
+Download and unzip the appropriate @file{.zip} distribution for your system.
+Drag the application icon to @file{/Applications/}.
+
+ROM images should be placed in a directory you create named
+@file{~/Library/XRoar/roms/} (under your @env{HOME} directory, not the system
+directory, @file{/Library/}).
+
+The Mac OS X+ build provides a menu for access to certain features, and often
+accepts the more familiar @kbd{@key{Command}+@var{key}} in place of the
+@kbd{@key{CTRL}+@var{key}} shortcuts listed in this manual.  It does not
+provide control dialog boxes; often, options in these dialogs will instead be
+found in the menu hierarchy.
+
+For troubleshooting or testing options, it's often a good idea to run from the
+command line, but application packages don't make that trivial.  A symbolic
+link to somewhere in your @env{PATH} is all that's required.  e.g.:
+
+@example
+$ sudo ln -s /Applications/XRoar.app/Contents/MacOS/xroar \
+        /usr/local/bin/xroar
+@end example
+
+After this, you can start the emulator by simply typing @command{xroar}
+followed by any command line options.
+
+For example, run @command{xroar --help} to display a list of the supported
+command line options.  Each of the command line options can also appear in a
+configuration file, which should be called @file{~/Library/XRoar/xroar.conf}
+(under your @env{HOME} directory).  You can configure many defaults and even
+extra machines and cartridges in this file.  See @ref{Configuring XRoar} for
+more details.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Building from source
+@section Building from source
+
+It is straightforward to build XRoar from source on any Unix-like OS so long as
+you have the normal build tools installed, and satisfy a few dependencies.
+
+The binary packages for Windows are cross-compiled under Linux using MinGW; it
+may be possible to build natively using something like MSYS2 or Cygwin, but
+this is untested.
+
+XRoar depends on external libraries for most aspects of its user interface:
+
+@itemize
+
+@item @myuref{https://www.gtk.org/, GTK+ 3} is recommended, and provides video,
+menus, and dialogs.  It may be possible to use GTK+ under Mac OS X+, but this
+is untested.  GTK+ 2 is deprecated, but still usable if you also have GtkGLExt
+installed.
+
+@item @myuref{https://libsdl.org/, SDL 2} provides a simpler interface, but
+extra code for Mac OS X+ adds some basic menus and file requester dialogs.  For
+non-Linux systems, it may also be the easiest way to get support for joysticks
+and audio.
+
+@item PulseAudio or ALSA can also be used for audio support.  Older code still
+exists for OSS and Jack, but these have not been tested for a while.
+
+@item @myuref{http://www.libpng.org/pub/png/libpng.html, libpng} is
+recommended, and allows the saving of screenshots in PNG format.
+
+@end itemize
+
+Under Debian, these dependencies can be satisfied with this simple invocation
+of Apt:
+
+@example
+$ sudo apt install build-essential libgtk-3-dev \
+                   libpulse-dev libpng-dev
+@end example
+
+@c
+
+XRoar uses the GNU Build System (Autotools), so the compilation process should
+be very familiar.  The following process compiles XRoar and installs it into
+@file{/usr/local}, like most other software built this way:
+
+@example
+$ gzip -dc xroar-@value{VERSION}.tar.gz | tar xvf -
+$ cd xroar-@value{VERSION}
+$ ./configure
+$ make
+$ sudo make install
+@end example
+
+If you have cloned the git repository, you will also need GNU Build System
+packages installed (@samp{autoconf}, etc.)  Running @command{./autogen.sh}
+should then generate the configure script, which you can then run as normal.
+
+The @command{configure} script has a lot of options guiding what it tests for,
+specifying cross-compilation, changing the install path, etc.  List them all
+with the @option{--help} option.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node The command line
+@section The command line
+
+Any option that can go in the configuration file can also be specified on the
+command line.  Just be sure to prefix the option's name with a dash (@samp{-}).
+@xref{Configuring XRoar}.
+
+On the command line, it is assumed that your shell will handle argument
+quoting, so any quote characters will be included verbatim.  Escape sequences
+are still parsed, except when an option expects a filename, as shells often use
+their own escaping mechanisms when autocompleting filename arguments.
+
+Windows has a bit of an odd relationship with standard I/O, so in order to see
+diagnostic output or help text, you need to tell XRoar to attach to a console.
+Do this by specifying @option{-C} (capital 'c') as the very first option.
+
+As a special case, the last machine selected on the command line is used as the
+default machine, and the last cartridge specified is attached to that machine.
+This means you can just use @option{-m @var{name}} instead of
+@option{-default-machine @var{name}}, and @option{-cart @var{name}} instead of
+@option{-machine-cart @var{name}}.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Troubleshooting
+@section Troubleshooting
+
+@subsection No BASIC ROM
+
+The most common issue when first using XRoar.  You start the emulator and only
+see a checkerboard pattern of orange and inverse @samp{@@} signs (or on the
+CoCo 3, some other pattern that's not the usual copyright messages).  This
+probably indicates that XRoar could not locate any BASIC ROM images.  Acquire
+some and put them in the directory appropriate to your platform.
+
+@image{trouble-no-basic, 6.25in,, Dragon emulation with different ROMs available, png}
+
+@c
+
+@subsection Program lacks colour
+
+You remember a program being in colour, but all you see is black and white.
+
+@image{trouble-cross-colour, 6.25in,, @cite{Time Bandit, Dunlevy & Lafnear, 1983} in different cross-colour modes, png}
+
+American software is often written to exploit cross-colour artefacts, where
+alternating patterns of black and white will ``trick'' the TV into displaying
+colour.  XRoar supports this, and should enable it by default when you choose
+an NTSC machine.  @xref{Composite rendering}.
+
+@c
+
+@subsection Can't access HD/SD image
+
+If you've been using previous versions of XRoar with the IDE, MOOH, or NX32
+cartridges, you now need to specify the image filename with @option{-load-hd0}.
+(HD image for IDE, SD image for NX32, MOOH).
+
+@c
+
+@subsection Debug messages
+
+XRoar prints diagnostic messages to standard output and standard error, and
+these may help narrow down a problem.  You can increase their verbosity with
+various command line options.  See @ref{Debugging options} for more
+information.
+
+Windows generally does not show these messages by default, but if you run XRoar
+with @option{-C} as the very first option, it will attempt to attach to the
+parent console (if running from a shell), or create a new console window.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node User interface
+@chapter User interface
+
+This chapter walks through most of the functionality available through the
+graphical user interface.  Where useful, short configuration examples or
+command line options will be demonstrated.  For more detailed information on
+configuring XRoar through the command line or configuration file, see
+@ref{Configuring XRoar}.
+
+@image{menubar, 5.125in,, XRoar menubar, png}
+
+When you run XRoar, it will start emulating the default machine in a window
+with a menu bar above it.
+
+From this menu bar, @clicksequence{File} lists general file options, including
+saving snapshots; @clicksequence{View} lists display-related functions,
+including opening the @clicksequence{TV Controls} dialog;
+@clicksequence{Hardware} lists options to modify the currently emulated
+hardware configuration; and @clicksequence{Tool} lists various options and
+control dialogs.  @clicksequence{Help} contains a simple @clicksequence{About}
+dialog.
+
+If you check @clicksequence{File @click{} Autosave configuration}, some options
+will be automatically written back to the config file (in an OS-specific
+location) on exit.  This is work in progress, however, and not all options are
+configurable from the UI.  You have the most control by modifying this file.
+@xref{Configuring XRoar}.
+
+@c
+
+@node Selecting a machine
+@section Selecting a machine
+
+The @clicksequence{Hardware @click{} Machine} submenu allows you to select a
+different machine to emulate.  XRoar will hard reset the new machine.
+
+@image{hardware-machine, 5.3125in,, Machine menu, png}
+
+You can specify a default machine in @file{xroar.conf}:
+
+@example
+default-machine dragon32
+@end example
+
+Finally, you can select a machine from the command line, e.g. @command{xroar -m
+dragon32}.  Specify @option{-m help} for a list of profiles.
+
+@c
+
+@node Selecting a cartridge
+@section Selecting a cartridge
+
+The @clicksequence{Hardware @click{} Cartridge} submenu lets you select a new
+cartridge to be attached to the currently-running machine.  XRoar will not hard
+reset the machine, but it is usually advisable to do so, either by selecting
+@clicksequence{Hardware @click{} Hard Reset} or by pressing
+@kbd{@key{CTRL}+@key{SHIFT}+R}.
+
+@image{hardware-cartridge, 5.625in,, Cartridge menu, png}
+
+You can specify a default cartridge for a machine in @file{xroar.conf}:
+
+@example
+machine dragon64
+  machine-cart mydos
+@end example
+
+And you can specify a cartridge on the command line, e.g. @command{xroar -m
+dragon64 -cart mydos}.  Specifying @option{-no-machine-cart} will prevent the
+usual attempt to automatically find a disk controller cartridge for a machine.
+Specify @option{-cart help} for a list of profiles.
+
+There are no cartridges usable with the MC-10/Alice yet (the 16K expansion is
+technically a cartridge, but XRoar currently emulates that specially).
+
+@c
+
+@node Running programs
+@section Running programs
+
+XRoar tries to make quickly running simple programs easy.  If you want to plug
+in a game cartridge, attach and load from a cassette image, or even run an
+unadorned DragonDOS or RS-DOS binary, just select @clicksequence{File @click{}
+Run} or press @kbd{@key{CTRL}+@key{SHIFT}+L}.  To attach media without trying
+to autorun a program, select @clicksequence{File @click{} Load} or press
+@kbd{@key{CTRL}+L}.  Alternatively, open one of the media control dialogs; see
+@ref{Cassette tape control} or @ref{Drive control}.
+
+@image{file-run, 3in,, File menu, png}
+
+From the command line, you can use @option{-load @var{file}} or @option{-run
+@var{file}} to achieve the same results.  You can even simply specify a
+filename as the last option to try and run it:
+
+@example
+xroar -m cocous daggorath.rom
+@end example
+
+XRoar will decide how to treat the file you select based on its extension:
+
+@table @b
+@item .cas, .c10, .wav, .k7@
+
+Cassette image.  XRoar will attach the image as the input cassette and try and
+look for the first file on the tape.  Depending on its type, it will
+automatically type @samp{CLOADM} (machine code) or @samp{CLOAD} followed by
+@samp{RUN} (BASIC).  Some programs with special load instructions are
+recognised automatically.
+
+@item .bas, .asc@
+
+ASCII BASIC program.  The Dragon (and Tandy Colour Computer) ROM has the
+ability to save and load BASIC in an untokenised form.  It still requires
+saving as a series of short blocks though, so if you load one of these, XRoar
+will automatically simulate this format to load with @samp{CLOAD}.
+
+@item .rom, .ccc@
+
+Cartridge image.  XRoar will create and insert a ROM cartridge with this file
+as its ROM data.  Some cartridges aren't simple ROM images; XRoar can
+automatically recognise some of these and decide whether a Games Master
+Cartridge should be used, for example.
+
+@item .vdk, .dsk, .jvc, .os9, .dmk@
+
+Floppy disk image.  XRoar will insert the floppy and type @samp{BOOT} (or
+@samp{DOS} under RS-DOS).  If the result is @samp{?BT ERROR} (DragonDOS) or a
+clear screen (RS-DOS) and nothing else happening, that just means there was no
+boot track.  You'll have to follow the load instructions for the software in
+question, which vary too much for XRoar to have built-in rules for.
+
+@item .bin@
+
+A DragonDOS or RS-DOS binary file.  XRoar will determine which type it is from
+the header and load it into RAM, then tell the CPU to jump to its start (EXEC)
+address.
+
+@end table
+
+In the case of floppy disk images in particular, there are many different
+formats, and sometimes you see files in one format with the file extension of
+another (e.g. just a generic @file{.dsk}, which XRoar will assume is a simple
+sector dump).  If you have issues, do check your file extensions.
+
+This is not an exhaustive list of the types of file XRoar can make use
+of, just the ones it knows how to automatically load programs from.
+
+@c
+
+@node Cassette tape control
+@section Cassette tape control
+
+@image{tape-input, 3.75in,, Cassette tape dialog, png}
+
+Select @clicksequence{File @click{} Cassette tapes} or press @kbd{@key{CTRL}+T}
+to open the cassette tape control dialog.
+
+In this dialog you can insert a tape, eject the current tape, and control the
+cassette motor with play and pause controls.  Note that for machines without
+motor control (MC-10, Alice), the tape will default to paused, and you will
+have to manually press play here after typing the load command.
+
+In addition, you can rewind the tape or specifically set its position by
+dragging the scroll bar beneath the image filename.  XRoar will also scan a
+tape file for Dragon programs, allowing you to double click a program filename
+to seek to it directly.
+
+The input and output tapes can be managed separately - click on their tab names
+to move between them.  While this isn't a configuration that you'd often have
+in real life, it does make some uses of the emulator more convenient. 
+
+In the input tab, you can also see some tick boxes for setting emulator
+options:
+
+@table @b
+@item Fast loading@
+
+XRoar intercepts ROM calls to speed loading.
+
+@item CAS padding@
+
+XRoar automatically inserts extra leader if a CAS file doesn't seem to have
+enough.  This is common with early tape conversions.
+
+@item Rewrite@
+
+XRoar intercepts ROM calls to rewrite any data read from the input tape to the
+output tape in a sanitised format, with consistent leaders, gaps, and
+byte-aligned data.  Useful for creating CAS files from WAV input, or even to
+regenerate a cleaner WAV file.
+@end table
+
+Under Mac OS X+, most functionality is found in the @clicksequence{File
+@click{} Cassette} menu.
+
+@c
+
+@node Drive control
+@section Drive control
+
+@image{drive-control, 4.625in,, Floppy/hard disks dialog, png}
+
+Select @clicksequence{File @click{} Floppy/hard disks} or press
+@kbd{@key{CTRL}+D} to open the drive control dialog.
+
+In this dialog you can insert existing, create new, or eject floppy disk images
+from each of four emulated floppy drives.  Note that images are loaded into
+RAM; writes go to the in-RAM copy.  The image is written back to the file when
+ejected (or you quit the emulator).  The currently selected drive, track, and
+head are also displayed.
+
+There are tick boxes per inserted disk to control emulator behaviour:
+
+@table @b
+@item Write enable@
+
+Basically the ``write protect label'' (or tab) on a floppy disk.  Unticking
+this prevents the emulated system from writing to the disk.
+
+@item Write back@
+
+Unticking this box means that whatever changes are made to the in-RAM copy will
+not be written back to the floppy image file.
+@end table
+
+Note that RS-DOS for the Tandy Colour Computer numbers its drives from zero
+instead of one, so when you perform operations on Drive 1, from the CoCo's
+point of view, that will be Drive 0.
+
+You can also attach, create new or detach up to two hard disk images.  How
+these operate will depend on what hardware is using the image.
+
+Under Mac OS X+, floppy and hard disk options can be found under per-drive
+submenus of the @clicksequence{File} menu.
+
+@c
+
+@node Video options
+@section Video options
+
+The @clicksequence{View} menu contains various video-related options.
+@clicksequence{Zoom} and @clicksequence{Full screen} are fairly
+self-explanatory.  @clicksequence{Inverse text} simulates a common Dragon
+hardware modification to invert the colours only in text mode.  The rest need a
+bit more explanation.
+
+@c
+
+@node TV input
+@subsection TV input
+
+@image{view-tv-input, 4.875in,, TV input, png}
+
+The @clicksequence{TV input} menu lets you pick between various video signals
+from the emulated machine.  ``S-Video'' is basically a palette-based output,
+reflecting the way an S-Video cable avoids cross-talk between the components of
+a video signal.  ``RGB'' is only currently useful on the CoCo 3, which emits a
+completely different set of colours on its RGB port.  The two ``Composite''
+options employ a composite video renderer (see below), with two pixel-to-colour
+phase relationships; VDG-based systems tended to come up in one or the other at
+random, so this lets you pick the ``other'' one if a title expects it.
+
+@c
+
+@node Composite rendering
+@subsection Composite rendering
+
+@image{view-composite-rendering, 4.75in,, Composite rendering, png}
+
+XRoar has a selection of composite renderers built in that trade off CPU time
+for accuracy in different ways to reproduce the artefacts of composite video.
+
+@table @b
+@item None@
+
+Disable all composite video effects.  Output will be simple colours, the same
+as picking the ``S-Video'' TV input.
+
+@item Simple (2-bit LUT)@
+
+Gives a very course 4-colour rendition of NTSC artefact colours between black &
+white pixels only.
+
+@item 5-bit LUT@
+
+A better set of NTSC artefact colours using a 5-bit LUT, but still only between
+black & white pixels.
+
+@item Partial NTSC@
+
+Performs a composite video encode/decode chain with filtering, taking lots of
+shortcuts.  Pretty decent NTSC output, but doesn't handle PAL.
+
+@item Simulated@
+
+Performs a more complete composite video encode/decode chain with filtering.
+This is the only renderer that will accurately reproduce PAL colour effects.
+It is also the most CPU-hungry.
+
+@end table
+
+@c
+
+@node TV controls
+@subsection TV controls
+
+@image{tv-controls, 5.625in,, TV controls dialog, png}
+
+Select @clicksequence{View @click{} TV controls} or press
+@kbd{@key{CTRL}+@key{SHIFT}+V} to open the TV controls dialog.  The dialog is
+divided into three sections.  The first, Audio, only contains a gain control.
+The Video section has the following controls:
+
+@table @b
+@item Brightness@
+
+Or black level.  0--100, where 0 pulls everything to black, and 100 drives
+everything up to white, effectively adjusting the @emph{contrast} of the
+picture.
+
+@item Contrast@
+
+Or gain.  0--100, with 50 meaning no gain.  Scales the RGB output, affecting
+the overall @emph{brightness}.  See
+@myuref{https://poynton.ca/notes/brightness_and_contrast/, Charles Poynton on
+Brightness & Contrast} for more on the labelling issue.
+
+@item Colour@
+
+Adjusts the saturation of colour without affecting the luminance.  0--100,
+where 0 yields a greyscale image.
+
+@item Hue@
+
+Adjusts the phase of a composite colour signal.  -179--180, with the centre
+value of 0 being normal.  A common control on NTSC displays.  Not strictly
+necessary in an emulator, but it's fun to spin it and watch the pretty colours.
+
+@item Picture Area@
+
+The picture area is the portion of the output signal that is rendered into the
+window, and this control lets you show more or less border around the active
+area (picking from four different crop regions).
+
+@item 60Hz Scaling@
+
+When this is enabled, 60Hz output (NTSC, PAL-M) will be scaled vertically, to
+better represent the picture shape that would be seen on 60Hz CRTs.  This
+scaling occurs because in a 60Hz TV system, fewer scanlines fill the same
+vertical space, yet the scanline duration is very similar.
+
+@end table
+
+Finally, the Composite Video section of the dialog includes more advanced
+control over the rendering when a composite signal is being simulated.
+
+@table @b
+@item Renderer@
+
+Another place to pick the composite renderer, described above.
+
+@item F@sub{S}@
+
+The video sample rate when using the ``Simulated'' renderer.  The options here
+reflect the different crystals used as SAM oscillators in Dragons and CoCos.
+
+@item F@sub{SC}@
+
+The frequency of the colour subcarrier, either 4.43MHz (PAL-I) or 3.58MHz
+(NTSC, PAL-M).  Together with F@sub{S}, this affects how the ``Simulated''
+renderer tracks colour modulation and demodulation.
+
+@item System@
+
+The TV colour system in use, one of @samp{PAL-I} (e.g. UK), @samp{PAL-M} (e.g.
+Brazil) or @samp{NTSC} (e.g. USA or Canada).  Setting only used by the
+``Simulated'' renderer.
+
+@item Colour Killer@
+
+Television sets vary in how they react to a composite video signal that lacks a
+colourburst.  The recommended approach is to disable colour processing and show
+a greyscale picture (to be backwards-compatible with black & white broadcasts),
+but many don't bother and end up decoding luminance information as colour.
+This option lets you choose a behaviour.
+
+@end table
+
+@c
+
+@node Keyboard layout
+@section Keyboard layout
+
+XRoar can operate in one of two keyboard modes.  By default, it tries to map
+the key positions on the host keyboard to what you would expect using the
+emulated system.  This is useful for games (where the relative physical
+positions of keys will be important), or to just satisfy muscle memory (even
+using an emulated Dragon, my hands expect to type in a certain way).
+
+You can select a particular layout with @clicksequence{Tool @click{} Keyboard
+layout}, though at time of writing, this doesn't affect very much.
+
+In translated mode (@clicksequence{Tool @click{} Keyboard translation}, or
+@kbd{@key{CTRL}+Z} to toggle), XRoar instead tries to map the symbols on your
+host keyboard to the keystrokes required to produce that symbol on the emulated
+machine.  For example, a UK PC keyboard typically has an unshifted
+@key{apostrophe} key, which XRoar can map to pressing @kbd{@key{SHIFT}+7} on an
+emulated Dragon.
+
+XRoar queries your operating system for information about which symbol is on
+which key, but in case it gets it wrong, you can pick from several built-in
+languages using @clicksequence{Tool @click{} Keyboard language}.
+
+@image{tool-kbd-lang, 4.75in,, Keyboard language, png}
+
+@c
+
+@page
+@node Printer control
+@section Printer control
+
+@image{printer-control, 2.5in,, Printer control dialog, png}
+
+Select @clicksequence{File @click{} Printer control} or press
+@kbd{@key{CTRL}+P} to open the printer control dialog.
+
+You can select between no printer, printing to file, or (only in the GTK+
+interface under Linux/Unix), printing through a pipe to an external filter
+command.
+
+When modifying the pipe configuration, your changes will not take effect until
+you press @clicksequence{Apply}.
+
+The amount of characters printed since the last time the buffer was flushed is
+shown.  Pressing the @clicksequence{Flush} button (or pressing
+@kbd{@key{CTRL}+@key{SHIFT}+P}) will flush output to file, or close and reopen
+the pipe.  The act of closing the pipe will cause the running filter to
+complete, e.g. sending a job to your network printer.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Emulated hardware
+@chapter Emulated hardware
+
+This chapter gives a brief description of the hardware emulated by XRoar, with
+configuration examples where useful.  For a more complete view of the user
+interface, see @ref{User interface}.  For more detailed information on
+configuring XRoar through the command line or configuration file, see
+@ref{Configuring XRoar}.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Machine architectures
+@section Machine architectures
+
+XRoar supports several underlying machine architectures, and has one or more
+built-in machine profile configurations based on each one.  See @ref{Machine
+options} for more detailed information on modifying or creating profiles.  The
+rest of this section describes the available architectures.
+
+@c
+
+@node Dragon 32
+@subsection Dragon 32
+
+Released in 1982, the Dragon 32 closely follows Motorola's reference design for
+the MC6809 CPU, MC6883 Synchronous Address Multiplexer and the MC6847 Video
+Display Generator.  Dragon Data also chose to make it electrically compatible
+with some of Tandy's peripherals for their Colour Computer; notably the
+joystick and cartridge ports.  In addition, it has a parallel port, making it
+compatible with the majority of printers on the market at the time.
+
+Architecture @samp{dragon32}.  Built-in machine profile @samp{dragon32}.
+
+@c
+
+@node Dragon 64
+@subsection Dragon 64
+
+The Dragon 64 was released the next year, in 1983.  In upped the on-board RAM
+to 64K and provided a second version of Microsoft BASIC assembled to make use
+of it.  It also added a serial port, though that is not yet emulated by XRoar.
+
+There are a few more changes to the motherboard than just extra RAM, so XRoar
+treats this as a separate architecture.
+
+Architecture @samp{dragon64}. Built-in machine profiles: @samp{dragon64},
+@samp{tano} (American NTSC version of Dragon 64 by Tano), @samp{dragon200e}
+(localised Spanish Dragon 64 from Eurohard).
+
+@c
+
+@node Dragon Professional
+@subsection Dragon Professional
+
+A prototype machine by Dragon Data that was never actually released.  A few
+versions of the system in cases at various stages of development exist.
+
+Essentially a souped-up Dragon 64, it adds an AY sound chip and built-in twin
+3.5" drives.  An early mention of it appears in the June 1984 issue of Dragon
+User, and there was a picture in the next issue.
+
+Support is largely based on information from Phill Harvey-Smith.
+
+Architecture @samp{dragonpro}.  Built-in machine profile: @samp{dragonpro}.
+
+@c
+
+@node Tandy Colour Computer 1/2
+@subsection Tandy Colour Computer 1/2
+
+An earlier (1980) Tandy machine made using Motorola's reference design,
+primarily marketed in the USA.  Sold at many price points, with 4K
+(originally), 16K, 32K or 64K of RAM and either with or without Extended Colour
+BASIC.  Later versions come with a new version of the VDG, the MC6847T1, which
+includes true lowercase characters.
+
+Architecture @samp{coco}.  Built-in machine profiles: @samp{coco},
+@samp{cocous} (NTSC), @samp{coco2b} (T1), @samp{coco2bus} (NTSC, T1),
+@samp{mx1600} (Mexican clone by Dynacom).
+
+@c
+
+@node Tandy MC-10
+@subsection Tandy MC-10
+
+Released in 1983, a little too late to compete with the Sinclair ZX-81, it was
+discontinued a year later.  A cut-down machine based on the Motorola MC6803,
+but still using the MC6847 VDG and containing a version of Microsoft BASIC.
+Comes with 4K of RAM, but much of the small amount of software available for it
+assumes an additional 16K RAM pack.
+
+Architecture @samp{mc10}.  Built-in machine profile @samp{mc10}.
+
+@c
+
+@node Matra & Hachette Alice
+@subsection Matra & Hachette Alice
+
+Basically the same machine as an MC-10, but with a French keyboard, 50Hz
+display, and a nice bright red case.  Unlike the MC-10, the Alice line actually
+continued, with the Alice 32 and Alice 90, though these are not supported by
+XRoar, as their architectures differ significantly.
+
+Architecture @samp{mc10}.  Built-in machine profile @samp{alice}.
+
+@c
+
+@node Tandy Deluxe Colour Computer
+@subsection Tandy Deluxe Colour Computer
+
+In development around 1984, this was never actually released.  However, a
+prototype has been discovered with a copy of Advanced BASIC and the planned
+extended hardware.
+
+Broadly similar to a Colour Computer 2, it adds finer-grained RAM banking, an
+AY sound chip, and an ACIA, amongst other things.
+
+Support is a work in progress based on what we know so far.
+
+Architecture @samp{deluxecoco}.  Built-in machine profile: @samp{deluxecoco}.
+
+@c
+
+@node Tandy Colour Computer 3
+@subsection Tandy Colour Computer 3
+
+In 1986, Tandy released the Colour Computer 3.  They had developed a custom
+chip, the TCC1014 (@emph{GIME}), with VLSI to replace the SAM and VDG, and it
+supported extended graphics modes, more memory (up to 512K directly) and a
+timer function, along with somewhat better interrupt handling and the ability
+to run at twice the clock speed.  A major development, it maintained a high
+degree of compatibility with its predecessors, losing some lesser-used (in the
+USA) graphics modes.
+
+The NTSC version of the CoCo 3 generates different colours depending on whether
+you use the composite video or RGB outputs.  The PAL version always uses the
+RGB output from the GIME.
+
+If you specify 1024K or 2048K RAM, this enables an optional DAT board function
+that extends the range of the MMU registers by two bits.  For compatibility
+with early 2M board, these two bits are write-only.
+
+Architecture @samp{coco3}.  Built-in machine profiles: @samp{coco3} (NTSC),
+@samp{coco3p} (PAL).
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Cartridge types
+@section Cartridge types
+
+XRoar supports several types of cartridge, and has at least one built-in
+cartridge profile configurations for each one.  See @ref{Cartridge options}
+for more information on modifying or creating profiles.  The rest of this
+section describes the available types.
+
+@c
+
+@node DragonDOS
+@subsection DragonDOS
+
+The official Dragon Data disk system for the Dragon.  Supports 80 track, double
+sided, double-density floppy disks.
+
+Emulation supports the Becker port mapped to $FF49/$FF4A, if enabled.
+
+Type @samp{dragondos}.  Built-in cartridge profile @samp{dragondos}.
+
+@c
+
+@node Delta
+@subsection Delta
+
+Premier Microsystems' alternative Dragon disk system.  Apparently two versions
+of this may have existed; XRoar emulates the double-density version.
+
+Type @samp{delta}.  Built-in cartridge profile @samp{delta}.
+
+@c
+
+@node RS-DOS
+@subsection RS-DOS
+
+Tandy's disk interface for the CoCo.  Typically supports only 35-track
+single-sided double-density disks, though more is accessible using OS-9.
+
+Emulation supports the Becker port.
+
+Type @samp{rsdos}.  Built-in cartridge profile @samp{rsdos}, @samp{becker}
+(with Becker port enabled, expecting @file{hdbdw3bck.rom}).
+
+@c
+
+@node Glenside IDE controller
+@subsection Glenside IDE controller
+
+Interfaces the Tandy CoCo to up to two IDE hard disks.  Its IO is generally
+memory mapped to addresses $FF50--$FF58.  Also optionally supports the  Becker
+port.
+
+To set the base address to some other value (the original cartridge can jumper
+IO to be from $FF70--, but this is incompatible with the MPI), use the
+@option{-cart-opt ide-addr=@var{addr}}.
+
+The controller supports up to two drives, and you can specify the image to use
+in each with @option{-load-hd0 @var{file}} or @option{-load-hd1
+@var{file}}.  If @var{file} does not exist, a 256MB empty image is
+created when the controller first tries to access it.
+
+Sectors are 512 bytes, and while some software may use all 512, others only
+access 256 bytes per sector, padding the other 256 bytes (or simply doubling
+them up).
+
+Type @samp{ide}.  Built-in cartridge profile @samp{ide}.
+
+@c
+
+@node NX32 and MOOH cartridges
+@subsection NX32 and MOOH cartridges
+
+Two memory expansion cartridges created by Tormod Volden for the Dragon.  Both
+accept an SD card image.
+
+The earlier NX32 provides simple bank switching, while the MOOH provides
+MMU-like functionality very like that in the Tandy CoCo 3.
+
+Types @samp{nx32}, @samp{mooh}.  Built-in cartridge profiles: @samp{nx32},
+@samp{mooh}.  Both require fleshing out with ROM information, and an SD card
+image specified, e.g.:
+
+@example
+cart mooh
+  cart-rom sdbdos-eprom8-all-v1.rom
+
+load-hd0 "~/sdcard.img"
+@end example
+
+@c
+
+@node Games Master Cartridge
+@subsection Games Master Cartridge
+
+The Games Master Cartridge (GMC), created by John Linville, provides the
+ability to bank switch up to 64K of cartridge ROM, along with an on-board
+SN76489 sound chip.
+
+This cartridge type is selected automatically (and configured to autostart) if
+you autorun a ROM image larger than 16K.
+
+Type @samp{gmc}.  Built-in cartridge profile @samp{gmc} is configured with no
+ROM installed, and to not auto-start.
+
+@c
+
+@node Orchestra 90-CC sound cartridge
+@subsection Orchestra 90-CC sound cartridge
+
+A simple expansion that provides two 8-bit DACs for stereo sound (but still
+driven by the CPU).  An on-board ROM for the CoCo provides an interface to
+composition, but if autorun is disabled, the hardware itself works fine on the
+Dragon.
+
+Type @samp{orch90}.  Built-in cartridge profile @samp{orch90}.
+
+@c
+
+@node Multi-Pak Interface
+@subsection Multi-Pak Interface
+
+The Multi-Pak Interface (MPI) is a CoCo add-on by Tandy that allows up to four
+cartridges to be connected, selectable by software or hardware switch.
+
+The RACE Computer Expansion Cage is a Dragon add-on by RACE similar to the MPI.
+Addressing and behaviour differs.
+
+If you attach an MPI, you'll want to populate one or more of its slots
+(numbered 0-3).  Use @option{-mpi-load-cart [@var{slot}=]@var{name}} to attach
+a named cartridge to the specified (or next) slot.  Configure the initially
+selected slot with @option{-mpi-slot @var{slot}}.
+
+It's not recommended to load more than one DOS cartridge into the MPI.
+As things stand, only the last one (in slot order) will have the emulated
+drives properly connected.
+
+Types @samp{mpi}, @samp{mpi-race}.  Built-in cartridge profiles: @samp{mpi},
+@samp{mpi-race} (RACE variant).
+
+@example
+machine coco
+  machine-cart mpi
+
+cart mpi
+  mpi-load-cart 0=orch90
+  mpi-load-cart 3=rsdos
+  mpi-slot 3
+@end example
+
+@c
+
+@c @node MC-10 16K RAM cartridge
+@c @subsection MC-10 16K RAM cartridge
+
+@c
+
+@node MC-10 MCX128 memory expansion
+@subsection MC-10 MCX128 memory expansion
+
+Designed by Darren Atkinson, provides 128K of bank-switched RAM for the Tandy
+MC-10.  Can also optionally switch in its own enhanced BASIC ROM.
+
+Type @samp{mcx128}.  Built-in cartridge profile @samp{mcx128}.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Keyboard
+@section Keyboard
+
+The Dragon keyboard (and those of all the machines XRoar emulates) is a typical
+crosspoint matrix with rows and columns connected to an internal interface.
+BASIC or other programs detect keypresses by strobing values to one port and
+seeing whether those values can be seen at another.
+
+XRoar will simulate the @emph{ghosting} effects inherent in a simple matrix
+design, but the accuracy of this simulation will depend very much on your host
+keyboard, which vary greatly in the amount of simultaneous keypresses they
+support (for more information, search for the terms ``key rollover'' or
+``NKRO'').
+
+By default, XRoar maps host keys to emulated keys based on their position.  By
+enabling keyboard translation (@clicksequence{Tool @click{} Keyboard
+translation} or @kbd{@key{CTRL}+Z} to toggle), it will instead press the
+emulated keys required to generate the appropriate @emph{symbol}.  Be aware
+that this only works in BASIC; OS-9 uses different chords for some characters.
+Use the @option{-kbd-translate} option to default to this mode.
+
+Where a PC keyboard doesn't typically have a good equivalent of an emulated
+key, some substitutions are made:  @key{Escape} maps to the Dragon's
+@key{BREAK} key, and @key{Home} maps to @key{CLEAR}.  Cursor keys are mapped
+directly, although they are in different places on a PC keyboard.
+
+Sometimes software written for the Dragon or Tandy CoCo is run on the other
+machine without fully adapting it to the different keyboard matrix layouts.  In
+this case, you can toggle to the ``other'' machine's keyboard layout by
+pressing @kbd{@key{CTRL}+K} or selecting one from @clicksequence{Hardware
+@click{} Keyboard type}.
+
+See @ref{Keyboard options} for more details on configuring keyboard handling,
+including some options that may help if XRoar was unable to properly identify
+your host keyboard.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Joysticks
+@section Joysticks
+
+Analogue joysticks are very common peripherals for the Dragon and Tandy CoCo.
+Many games require them, and some productivity applications even use them as a
+mouse-like input device.  Joysticks are electrically compatible between the
+Dragon and CoCo 1/2/3, though some CoCo joysticks use a 6-pin DIN connector
+instead of 5-pin DIN, and these will not plug into the Dragon.  On the CoCo 3,
+this extra pin can carry the signal for an extra firebutton.
+
+XRoar can use physical gamepads and joysticks, or simulate them using mouse or
+keyboard.  Here are the built-in joystick profiles, including several different
+keyboard layouts for convenience:
+
+@multitable {kjoy0xxx} {First two axes and first two buttons of second physical joystickxxx}
+@headitem Name @tab Description
+@item @samp{mjoy0} @tab Mouse based virtual joystick mapped to screen position
+@item @samp{kjoy0} @tab Keyboard based virtual joystick using cursor keys, with @key{Left Alt} and @key{Left Super} as firebuttons.
+@item @samp{wasd} @tab Keyboard based virtual joystick using @key{W}, @key{A}, @key{S}, @key{D}, with @key{O} and @key{P} as firebuttons.
+@item @samp{ijkl} @tab Keyboard based virtual joystick using @key{I}, @key{J}, @key{K}, @key{L}, with @key{X} and @key{Z} as firebuttons.
+@item @samp{qaop} @tab Keyboard based virtual joystick using @key{Q}, @key{A}, @key{O}, @key{P}, with @key{Space} and @key{Left Bracket} as firebuttons.
+@end multitable
+
+In addition, XRoar should automatically detect attached gamepads or joysticks
+and add them as named profiles called @samp{joy0}, @samp{joy1}, etc.  If the
+device is able to provide its own description, that will be included in the
+menu text.  If a gamepad has two sticks, two more automatic profiles will be
+created, e.g.  @samp{joy0/l} and @samp{joy0/r} so you can choose between them.
+
+By default, XRoar will map the first physical joystick found (@samp{joy0}) to
+the right hand port, and the second (@samp{joy1}) to the left hand port.  If
+only one device is present, but has two sticks, the @emph{left} stick
+(@samp{joy0/l}) is mapped to the @emph{right} hand port and vice-versa.
+Slightly confusing, but this is because people usually assume the left stick to
+be active, while the right hand port on a Dragon is the first in hardware, thus
+usually the ``primary'' control assumed by software.
+
+A preselected virtual joystick can be quickly cycled through the ports by
+pressing @kbd{@key{CTRL}+J}.  The first press will map it to the right
+joystick, the second to the left joystick, and pressing a third time unmaps it.
+You can change which virtual joystick is cycled in this way with the
+@option{-joy-virtual @var{name}} option, defaulting to @samp{kjoy0} from the
+table above.
+
+The MC-10 has no built-in joystick ports, but an expansion (that can not be
+used at the same time as the 16K RAM expansion!) allows the connection of
+digital joysticks.  These are not yet supported by XRoar.
+
+See @ref{Joystick options} for information on configuring your own joystick
+profiles.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Printers
+@section Printers
+
+The Dragon machines have parallel printer ports, and XRoar supports these,
+sending output either to a file, or through a command pipe.  The pipe approach
+allows you to apply a filter to the output, and/or send it to a real attached
+printer using normal Unix commands.
+
+The CoCo and MC-10 machines have serial printer ports.  XRoar doesn't support
+these directly yet, but a limited form of print redirection is implemented
+using a ROM BASIC intercept.  This is enough to support BASIC commands like
+LLIST, but will not cope with programs implementing their own serial routines.
+
+Use the @option{-lp-file @var{file}} option to send printer output to a
+file, or @option{-lp-pipe @var{command}} to send it through a pipe.  Pressing
+@kbd{@key{CTRL}+@key{SHIFT}+P} will flush the current stream by closing it, so
+if you are using a pipe, the filter will complete.  The stream will be
+re-opened when any new data is sent.
+
+Under Unix, the @command{enscript} utility is good for processing output and
+sending it to a configured printer, e.g.  @option{-lp-pipe "enscript -B -N r -d
+@emph{printer-name}"}.  This will send a job to your printer, using carriage
+returns as line feeds (the Dragon default), each time you press
+@kbd{@key{CTRL}+@key{SHIFT}+P} (or exit the emulator).
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Storage media
+@chapter Storage media
+
+This chapter documents the types of media image files that XRoar supports, and
+some of the options for manipulating them.  For a more complete view of the
+user interface, see @ref{User interface}.  For more detailed information on
+configuring XRoar through the command line or configuration file, see
+@ref{Configuring XRoar}.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Cassettes
+@section Cassettes
+
+Cassette tape was the primary method of loading software until floppy disk
+drives became available, but has remained popular for games distribution even
+since, as it serves the largest market.  Data is encoded onto cassette tape as
+audio, all currently-emulated machines using the same format, where a single
+cycle represents one bit of data, and its wavelength determines the bit's
+value.
+
+@node Tape image file formats
+@subsection Tape image file formats
+
+XRoar supports tapes as raw sampled audio in WAV format (@file{.wav}), or in
+the more compact CAS format (@file{.cas}) which represents bits of data
+directly (files for the MC-10 are typically still CAS format, but with a
+@file{.c10} extension; these will also work).
+
+An extension to the CAS format called CUE is also supported.  This comprises
+extra data at the end of the file that @emph{marks up} the CAS file to indicate
+portions of silence, or the wavelength used for each bit.  This enables it to
+better represent the structure of the original tape, support certain fast
+loaders, yet for data within the file to remain readable with a hex editor if
+it is correctly aligned.
+
+Some MC-10/Alice software has been seen in K7 format (@file{.k7}).  XRoar has
+read-only support for these files.
+
+XRoar can also attach BASIC ASCII text files (with @file{.bas} or @file{.asc}
+file extensions) and interpret them as cassettes, providing a useful way to
+edit these in your favourite text editor before loading into the emulator.
+Note: this feature is not supported by the MC-10.
+
+@node Input and Output tapes
+@subsection Input and Output tapes
+
+The tape used for writing is considered separate to the read tape.  This is an
+emulator-friendly approach to prevent overwriting your programs, though it
+would of course be possible in real life with two cassette decks.
+
+Tape rewriting, enabled with @option{-tape-rewrite} is a special mode where the
+ROM is intercepted, and anything read from the input tape is @emph{rewritten}
+to the output tape.  Custom loaders may defeat it, but otherwise this is a good
+way of creating a well-formed CAS file, with bytes aligned and consistent
+leader lengths.
+
+@node Remote motor control
+@subsection Remote motor control
+
+The Dragon and Tandy Colour Computers have a built-in cassette relay that can
+control the cassette motor remotely.  For these platforms, cassette emulation
+will default to ``play'' being pressed, letting the remote control start and
+stop the tape.
+
+The MC-10 and Alice have no remote connection, and so for these platforms
+cassette emulation defaults to stopped, and you will have to manually start
+and stop the tape after entering load commands.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Floppy disks
+@section Floppy disks
+
+Floppy disk drives provide much faster access to data than cassette tape.
+Initially costly, prices did fall somewhat, so these are a fairly common
+expansion.
+
+To use floppy disk images, an emulated disk controller will need to be
+configured.  XRoar will usually try to do this automatically if it finds the
+appropriate ROMs for a disk controller suited to the machine you've chosen.
+
+These floppy disk image formats are supported:
+
+@multitable @columnfractions .15 .80
+@headitem Extension @tab Description
+@item .dmk
+@tab Disk image file in a format defined by David Keil.  These images store a lot of information about the structure of a disk and support both single and double density data.
+@item .jvc, .os9, .dsk
+@tab Disk image file in a basic sector-by-sector format with optional header information.
+@item .vdk
+@tab Another disk image file format, used by PC-Dragon.
+@end multitable
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Hard disks
+@section Hard disks
+
+The Glenside IDE controller interfaces hard disks to the Tandy CoCo, and the
+MOOH and NX32 memory expansions can each provide access to an SD card.
+
+@multitable @columnfractions .21 .75
+@item @option{-load-hd@var{X} @var{file}}
+@tab Use @var{file} as the hard disk image for drive @var{X} (0 or 1).
+@end multitable
+
+XRoar supports these types of hard disk image:
+
+IDE images with header information should have a @file{.ide} extension.  This
+is necessary to distinguish them from images with no header.  These images
+contain metadata describing an IDE drive, and are the only ones usable in CHS
+mode.  Starting with 512 bytes of ``magic'' and 512 bytes of IDENTIFY DEVICE
+information, sector data follows in LSN order, 512 bytes per sector.
+
+Raw images with 512 byte sectors should have a @file{.img} extension.  Previous
+versions of XRoar would create IDE images with this file extension, and you
+should rename them to @file{.ide}.  Unfortunately this is necessary to support
+raw images without a header: if you happened to write the ``magic'' identifying
+information to the start of it, any attempt to be clever about file contents
+would fail.
+
+Finally, files with the @file{.vhd} extension are assumed to be 256
+bytes per sector with no header information.
+
+When no IDE metadata is present, XRoar will fake some up so that raw images can
+still be used with the IDE controller emulation.  This means VHD images
+containing RSDOS filesystems are usable with YA-DOS or HDBDOS.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Configuring XRoar
+@chapter Configuring XRoar
+
+XRoar can read a configuration file.  The file is ASCII text, with one
+directive per line.  It covers anything from setting individual options to
+defining specific named profiles for hardware.
+
+To recap, the expected location for this file varies by platform:
+
+@multitable {Mac OS X+.} {:~/Local Settings/Application Data/XRoar:~/Application Data/XRoar.}
+@headitem Platform @tab Default path to configuration file
+@item Unix/Linux @tab @file{~/.xroar/xroar.conf}
+@item Windows @tab @file{%LOCALAPPDATA%\XRoar\xroar.conf}
+@item Mac OS X+ @tab @file{~/Library/XRoar/xroar.conf}
+@end multitable
+
+To print the current configuration to standard output (suitable for redirection
+to a config file), run XRoar with the @option{-config-print} option.  This will
+include all the built-in machine and cartridge definitions.  For a complete
+version including default values, use @option{-config-print-all}.  To enable
+limited configuration auto-save (to the location listed in the table above),
+use @option{-config-auto-save}.
+
+The Windows build will check the current working directory for
+@file{xroar.conf} first.  This is somewhat at odds with configuration
+auto-save, but as far as I can tell, the majority of Windows users prefer to
+unpack a @file{.zip} file and run it from its own directory.  Just be aware
+that under Windows, if you turn on auto-save, the version in the unpacked
+directory will still take precedence.
+
+To bypass the search path and start XRoar using a specific configuration file,
+pass @option{-c @var{file}} as the very first option to XRoar.
+
+Directives are listed in @file{xroar.conf} one per line.  They contain an
+option, possibly followed by whitespace and a value.  Trailing whitespace is
+ignored.  Empty lines are skipped, and any line where the first non-whitespace
+character is a hash (@samp{#}) is treated as a comment.  The leading dash
+(@samp{-}) is not required in the configuration file, though it is accepted.
+
+If a value contains special characters, or if you want trailing whitespace to
+be included in the value, you must @emph{escape} those characters.  Sections
+contained within pairs of single or double quotes are escaped, except the
+backslash (@samp{\}) which introduces an escape sequence:
+
+@multitable @columnfractions .13 .83
+@headitem Sequence @tab Description
+@item @samp{\0} @tab Null (NUL), ASCII 0.  Note that this is only permitted when
+@emph{not} followed by another octal digit, as it may be confused with an octal
+byte, so it may be preferable to use @samp{\x00} instead.
+@item @samp{\a} @tab Bell (BEL), ASCII 7, no equivalent on the Dragon keyboard.
+@item @samp{\b} @tab Backspace (BS), ASCII 8, @kbd{LEFT}.
+@item @samp{\e} @tab Escape (ESC), ASCII 27, no equivalent on the Dragon
+keyboard, but either mapped to @kbd{BREAK} or used to introduce limited ANSI
+escape sequences in the @option{-type} command, effective for the MC-10.
+@item @samp{\f} @tab Form Feed (FF), ASCII 12, @kbd{CLEAR}.
+@item @samp{\n} @tab Newline (NL), ASCII 10, @kbd{DOWN}.  Not usually used by the
+Dragon as a line ending, instead try @samp{\r}.
+@item @samp{\r} @tab Carriage Return (CR), ASCII 13, @kbd{ENTER}.
+@item @samp{\t} @tab Horizontal Tab (HT), ASCII 9, @kbd{RIGHT}.
+@item @samp{\v} @tab Vertical Tab (VT), ASCII 11, no equivalent on the Dragon keyboard.
+@item @samp{\@emph{nnn}} @tab 8-bit byte with value specified as a three-digit octal
+number, @emph{nnn}.
+@item @samp{\x@emph{hh}} @tab 8-bit byte with value specified as a two-digit
+hexadecimal number, @emph{hh}.
+@item @samp{\u@emph{hhhh}} @tab 16-bit Unicode codepoint specified as a four-digit
+hexadecimal number, @emph{hhhh}.  Internally, this will be encoded as UTF-8.
+@end multitable
+
+Any other character following a backslash---including another backslash---is
+included verbatim.  For example, this will be necessary in the configuration
+file under Windows when file paths include the backslash as a directory
+separator.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Startup options
+@section Startup options
+
+These may only be used on the command line, and must be specified before any
+other option, as they affect how the rest are treated.
+
+@multitable @columnfractions .25 .71
+@item @option{-C}
+@tab Attach to or create new console window (Windows-only).
+@item @option{-c @var{file}}
+@tab Specify a different configuration file.
+@item @option{-no-c}
+@tab Don't read the configuration file.
+@item @option{-no-builtin}
+@tab Disable built-in configuration.  Unless you also define a machine yourself, XRoar will abort.
+@end multitable
+
+@c
+
+@node Machine options
+@section Machines
+
+XRoar creates a list of machine profiles from built-in and user-supplied
+configuration.  One of these profiles is selected at startup, using either the
+@option{-default-machine @var{name}} option, or by XRoar testing each profile
+in turn to see if its configured ROM image files are available.
+
+Each machine profile has a base architecture (specified with the
+@option{-machine-arch} option).  See @ref{Machine architectures} for
+descriptions of the supported architectures, and which machine profiles are
+built-in.
+
+@multitable @columnfractions .30 .66
+@item @option{-default-machine @var{name}}
+@tab Default machine profile to select on startup.
+@item @option{-m @var{name}},@*@option{-machine @var{name}}
+@tab Create or modify named machine profile.  The remaining options configure the profile.  @option{-machine help} lists currently defined profiles.
+@item @ @ @ @option{-machine-desc @var{text}}
+@tab Description shown in @option{-machine help} and menu options.
+@item @ @ @ @option{-machine-arch @var{arch}}
+@tab Base machine architecture.  See @ref{Machine architectures} for information.  @samp{dragon32}, @samp{dragon64}, @samp{dragonpro}, @samp{coco}, @samp{deluxecoco}, @samp{coco3} or @samp{mc10}.
+@item @ @ @ @option{-machine-keyboard @var{type}}
+@tab Override the type of keyboard attached to machine.  @samp{dragon}, @samp{dragon200e}, @samp{coco}, @samp{coco3}, @samp{mc10} or @samp{alice}.
+@item @ @ @ @option{-machine-cpu @var{cpu}}
+@tab Fitted CPU.  One of @samp{6809} or @samp{6309}.  Not applicable to the MC-10.
+@item @ @ @ @option{-bas @var{rom}}
+@tab ROM image for Colour BASIC (CoCo) or Microcolour BASIC (MC-10, Alice).
+@item @ @ @ @option{-extbas @var{rom}}
+@tab ROM image for Extended BASIC (Super Extended BASIC on the CoCo@w{ }3).
+@item @ @ @ @option{-altbas @var{rom}}
+@tab ROM image for 64K-mode Extended BASIC (Dragon 64, Dragon 200-E).
+@item @ @ @ @option{-no-bas},@*@ @ @ @option{-no-extbas},@*@ @ @ @option{-no-altbas}
+@tab Indicate the corresponding ROM is not fitted in this machine.
+@item @ @ @ @option{-ext-charset @var{rom}}
+@tab ROM image to use for external character generator.
+@item @ @ @ @option{-tv-type @var{type}}
+@tab One of @samp{pal}, @samp{ntsc} or @samp{pal-m}.
+@item @ @ @ @option{-tv-input @var{input}}
+@tab One of @samp{cmp} (composite video, no cross-colour), @samp{cmp-br} (composite video, blue-red cross-colour), @samp{cmp-rb} (composite video, red-blue cross-colour) or @samp{rgb} (RGB video, CoCo 3 only).
+@item @ @ @ @option{-vdg-type @var{type}}
+@tab Indicate the VDG variant fitted.  One of @samp{6847} or @samp{6847t1}.  For CoCo 3, @samp{gime1986} or @samp{gime1987}.
+@item @ @ @ @option{-ram @var{kbytes}}
+@tab Amount of RAM fitted in kilobytes.  Nearest value valid for selected machine will actually be used.
+@item @ @ @ @option{-ram-org @var{org}}
+@tab Override RAM type, possibly affecting banking behaviour.  One of @samp{4kx1}, @samp{16kx1}, @samp{32kx1} or @samp{64kx1}.
+@item @ @ @ @option{-ram-init @var{pattern}}
+@tab Initial RAM state.  One of @samp{clear}, @samp{set}, @samp{pattern} or @samp{random}.
+@item @ @ @ @option{-machine-cart @var{name}}
+@tab Default cartridge to attach.
+@item @ @ @ @option{-no-machine-cart}
+@tab Indicate that XRoar is not to automatically attempt to attach a DOS cartridge
+to this machine (the default is to try).
+@item @ @ @ @option{-machine-opt @var{string}}
+@tab Set machine arch-specific option.
+@end multitable
+
+Here is a configuration example, approximating the prototype that led to the
+Dragon 32:
+
+@example
+machine pippin
+  machine-desc "Dragon Pippin (prototype)"
+  machine-arch dragon32
+  ram 16
+@end example
+
+@samp{pippin} is the short name used to refer to the profile.  The argument to
+@option{machine-desc} is the longer descriptive name that would appear in menus
+or help text.  The rest of the section configures the new machine to have a
+base architecture the same as a Dragon 32, but with only 16K of RAM.
+
+@c
+
+@node Cartridge options
+@section Cartridges
+
+Similarly, XRoar contains a list of cartridge profiles, each with an underlying
+type.
+
+@multitable @columnfractions .27 .69
+@item @option{-cart @var{name}}
+@tab Create or modify named cartridge profile.  @option{-cart help} lists currently defined profiles.  The remaining options configure the profile.
+@item @ @ @ @option{-cart-desc @var{text}}
+@tab Cartridge description shown in @option{-cart help} and menu options.
+@item @ @ @ @option{-cart-type @var{arch}}
+@tab Cartridge architecture.  See @ref{Cartridge types} for a list.
+@item @ @ @ @option{-cart-rom @var{file}}
+@tab The ROM image specified will be mapped from $C000.
+@item @ @ @ @option{-cart-rom2 @var{file}}
+@tab The ROM image specified will be mapped from $E000.
+@item @ @ @ @option{-cart-becker}
+@tab Enable Becker port where supported.
+@item @ @ @ @option{-cart-autorun}
+@tab Auto-start cartridge using FIRQ.
+@item @ @ @ @option{-cart-opt @var{string}}
+@tab Set cartridge type-specific option.
+@item @option{-mpi-slot @var{slot}}
+@tab (MPI) Initially select slot (0--3).
+@item @option{-mpi-load-cart [@var{slot}]=@var{name}}
+@tab (MPI) Insert cartridge into next or numbered slot.
+@end multitable
+
+Built-in cartridge profiles exist with sensible defaults for each of the
+cartridge types except @samp{rom} (for which a profile is simply created when
+you try to autorun a ROM image), each with the same name as the type.
+
+XRoar will automatically attempt to find a disk interface relevant to the
+current machine unless a specific default has been configured for the machine
+with @option{-machine-cart}, or automatic selection is disabled with the
+@option{-no-machine-cart} option.
+
+Selecting a ROM image file with the @option{-load} or @option{-run} command
+line options, or with @kbd{@key{CTRL}+L} or
+@kbd{@key{CTRL}+@key{SHIFT}+L}, will attach a ROM cartridge.
+
+Within the emulator, cartridges can be enabled or disabled by pressing
+@kbd{@key{CTRL}+E}.  You will almost certainly want to follow this with a
+hard reset (@kbd{@key{CTRL}+@key{SHIFT}+R}).
+
+Here is an example profile, replicating the modified DragonDOS cartridge I used
+to use:
+
+@example
+@group
+cart mydos
+  cart-desc "My SuperDOS E6 Cart"
+  cart-type dragondos
+  cart-rom sdose6.rom
+  cart-rom2 dosdream.rom
+@end group
+@end example
+
+@samp{mydos} is the short name used to refer to the profile.  The argument to
+@option{cart-desc} is the longer descriptive name that would appear in menus or
+help text.  The rest of the section defines a cartridge with DragonDOS hardware
+but with the DOS ROM replaced by @file{sdose6.rom} (SuperDOS E6, a common
+upgrade).  The extra 8K of cartridge address space is used for
+@file{dosdream.rom} (DOS-Dream, an editor/assembler/debugger package designed
+to coexist with DragonDOS).
+
+@c
+
+@node Becker port options
+@section Becker port
+
+@multitable @columnfractions .24 .72
+@item @option{-becker}
+@tab Prefer becker-enabled DOS cartridge when picked automatically.
+@item @option{-becker-ip @var{address}}
+@tab Address or hostname of DriveWire server.  Default: @samp{127.0.0.1}
+@item @option{-becker-port @var{port}}
+@tab Port of DriveWire server.  Default: @samp{65504}
+@end multitable
+
+Not a cartridge in and of itself, XRoar supports an emulator-only feature that
+enables it to connect to a server using a TCP connection and access remote
+facilities such as disk images and MIDI devices---the @dfn{Becker port}.  This
+appears as a memory-mapped device, and XRoar supports it as an optional feature
+of many cartridge types.
+
+Enable this port when configuring a cartridge with @option{-cart-becker}.  The
+@option{-becker} option tells XRoar to prefer a cartridge with it enabled when
+automatically selecting one.
+
+The IP and port to connect to can be specified with the @option{-becker-ip} and
+@option{-becker-port} options.  These default to @samp{127.0.0.1} and
+@samp{65504} respectively, matching the defaults for pyDriveWire and
+DriveWire@w{ }4.
+
+@c
+
+@node Cassette options
+@section Cassettes
+
+@multitable @columnfractions .32 .64
+@item @option{-load-tape @var{file}}
+@tab Attach @var{file} as tape image for reading.
+@item @option{-tape-write @var{file}}
+@tab Open @var{file} for tape writing.
+@item @option{-tape-pan @var{position}}
+@tab Pan stereo input.  Floating point number from @samp{0.0} (full left) to @samp{1.0} (full right).  The default of @samp{0.5} mixes the two channels equally.
+@item @option{-tape-hysteresis @var{pc}}
+@tab Read hysteresis as percentage of full scale (default is 1%).
+@item @option{-no-tape-fast}
+@tab Disable fast tape loading.  The default is enabled, which uses ROM intercepts to speed up loading.
+@item @option{-no-tape-pad-auto}
+@tab Disable automatic padding of short leaders in CAS files (see below).
+@item @option{-tape-ao-rate @var{hz}}
+@tab Set tape writing frame rate to @var{hz} (affects audio file output, e.g.  WAV).  Default: @samp{9600}Hz.
+@item @option{-tape-rewrite}
+@tab Enable tape rewriting (see below).
+@item @option{-tape-rewrite-gap-ms @var{ms}}
+@tab Gap length in milliseconds to write in rewrite mode (1-5000ms, default 500ms).
+@item @option{-tape-rewrite-leader @var{n}}
+@tab Length of leaders in bytes to write in rewrite mode (1-2048 bytes, default 256).
+@item @option{-snap-motoroff @var{file}}
+@tab Write a snapshot to @var{file} each time the cassette motor is switched off.
+@end multitable
+
+Dragon cassettes are typically recorded in mono.  If you are having trouble
+loading from an audio file recorded in stereo, it may be useful to pan it hard
+to the left or right with @option{-tape-pan 0.0} or @option{-tape-pan 1.0}.
+
+A small amount of hysteresis in the zero crossing detector simulates the same
+effect in hardware, and helps greatly with loading from some audio files.  If
+you're having difficulties with a recording, adjusting this valie with
+@option{-tape-hysteresis} may help.
+
+Tape padding defaults to on: A lot of old CAS tape images were created with
+their leaders truncated, and this option tries to account for that
+automatically.  It may be useful to try turning this option off (from the UI,
+or with @option{-no-tape-pad-auto}) if you are having trouble loading
+something.
+
+The @option{-snap-motoroff @var{file}} option is useful for getting a dump
+of the machine state at the moment a program has finished loading, but before
+it has started executing.  If you specify @var{file} with a @file{.ram}
+extension, you can get a simple RAM dump, viewable in a hex editor.
+
+@c
+
+@node Floppy disk options
+@section Floppy disks
+
+@multitable @columnfractions .26 .70
+@item @option{-load-fd@var{X} @var{file}}
+@tab Load disk image file @var{file} into drive @var{X} (0--3).
+@item @option{-no-disk-write-back}
+@tab Don't default to enabling write-back for disk images.
+@item @option{-no-disk-auto-os9}
+@tab Don't try to detect headerless OS-9 JVC disk images.
+@item @option{-no-disk-auto-sd}
+@tab Don't assume single density for 10 sector-per-track disks.
+@end multitable
+
+@emph{Warning}: The default of @emph{write back} being enabled can lead to
+accidental modification of your disk images.  You can use the option
+@option{-no-disk-write-back} in your configuration file to protect them by
+default, though be aware that this also means anything ``saved'' to disk will
+be lost if you forget to re-enable it when required.
+
+The JVC format specifies that the disk images without headers are single-sided,
+but some double-sided disk images have been made available without headers.
+These cannot normally be distinguished from a single-sided disk that happens to
+have twice the number of tracks.  If an OS-9 filesystem is present, the
+identification sector is inspected to determine the correct disk structure.
+This step will always be performed for headerless images with the @file{.os9}
+filename extension, but may be disabled for the other valid JVC filename
+extensions with @option{-no-disk-auto-os9}.
+
+@c
+
+@node Hard disk options
+@section Hard disks
+
+@multitable @columnfractions .21 .75
+@item @option{-load-hd@var{X} @var{file}}
+@tab Use @var{file} as the hard disk image for drive @var{X} (0 or 1).
+@end multitable
+
+@c
+
+@node Keyboard options
+@section Keyboard
+
+@multitable @columnfractions .33 .63
+@item @option{-kbd-layout @var{layout}}
+@tab Specify host keyboard layout.  @option{-kbd-layout help} for a list.  Default: @samp{auto}
+@item @option{-kbd-lang @var{lang}}
+@tab Specify host keyboard language.  @option{-kbd-lang help} for a list.  Default: @samp{auto}
+@item @option{-kbd-bind @var{hkey}=[pre:]@var{ekey}}
+@tab Bind host key @var{hkey} to emulated key @var{ekey}.
+@item @option{-kbd-translate}
+@tab Start up in translated keyboard mode.
+@item @option{-type @var{string}}
+@tab Intercept ROM calls to type @var{string} into BASIC on startup.
+@end multitable
+
+Specifying a keyboard layout (@option{-kbd-layout}) doesn't achieve much yet.
+In future, it may map certain extra keys from the Unix or JIS layouts to
+similarly positioned emulated keys.
+
+The @option{-kbd-translate} option can be used to default to translated mode,
+where XRoar translates keypresses to reproduce the correct symbol in the
+emulated machine (only under BASIC; OS-9 uses different chords for some
+characters).
+
+Specifying a keyboard language (@option{-kbd-lang}) overrides any key symbol
+mapping gleaned from the OS with a built-in table.  If translated mode isn't
+working well for you, this option may help.  @option{-kbd-lang help} for a
+list.
+
+When binding keys with @option{-kbd-bind}, if the emulated key @var{ekey} is
+prefixed with @samp{preempt:} or @samp{pre:}, this binding preempts
+translation; useful for modifier keys.  To get @var{hkey} names, run with
+@option{-debug-ui 1} to enable keypress debugging and see what it reports as
+you type.
+
+Special values for @var{ekey} are: @samp{colon}, @samp{semicolon},
+@samp{comma}, @samp{minus}, @samp{fullstop}, @samp{period}, @samp{dot},
+@samp{slash}, @samp{at}, @samp{up}, @samp{down}, @samp{left}, @samp{right},
+@samp{space}, @samp{enter}, @samp{clear}, @samp{break}, @samp{escape},
+@samp{shift}, @samp{alt}, @samp{ctrl}, @samp{control}, @samp{f1}, @samp{f2}.
+
+@c
+
+@node Joystick options
+@section Joysticks
+
+@multitable @columnfractions .37 .59
+@item @option{-joy-db-file @var{file}}
+@tab Load gamepad mappings from file.
+@item @option{-joy @var{name}}
+@tab Create or modify named joystick profile.  @option{-joy help} lists currently defined profiles.
+@item @ @ @ @option{-joy-desc @var{text}}
+@tab Joysticks description shown in @option{-joy help}.  @c and menu options.
+@item @ @ @ @option{-joy-axis @var{axis}=@var{input}:[@var{args}]}
+@tab Configure joystick axis.  @option{-joy-axis help} to list physical joysticks.
+@item @ @ @ @option{-joy-button @var{btn}=@var{input}:[@var{args}]}
+@tab Configure joystick button.  @option{-joy-button help} to list physical joysticks.
+@item @option{-joy-right @var{name}}
+@tab Map right joystick.
+@item @option{-joy-left @var{name}}
+@tab Map left joystick.
+@item @option{-joy-virtual @var{name}}
+@tab Specify the @emph{virtual} joystick to cycle.  Default: @samp{kjoy0}
+@end multitable
+
+The axis and button mapping options used while configuring a profile need some
+explaining.
+
+Configure axes with @option{-joy-axis @var{axis}=@var{input}:[@var{args}]}.
+The @var{axis} is either @samp{X} or @samp{Y} (or numbered 0--1).
+
+Configure buttons with
+@option{-joy-button @var{button}=@var{input}:[@var{args}]}.  The @var{button}
+is either 0 (first button), or 1 (second button---only useful on the CoCo 3).
+
+In both cases, the @var{input} selects a source for the input from the list
+below, and the @var{args} specify which one to use.
+
+@need 1000
+@multitable {physicalxxx} {screen-offset0,screen-offset1xxx} {joystick-index,button-indexxxx}
+@headitem Input @tab Axis args @tab Button args
+@item @samp{physical} @tab @var{joystick-index},@var{[-]axis-index} @tab @var{joystick-index},@var{button-index}
+@item @samp{keyboard} @tab @var{key-name0},@var{key-name1} @tab @var{key-name}
+@item @samp{mouse} @tab @var{screen-offset0},@var{screen-offset1} @tab @var{button-number}
+@end multitable
+
+The @samp{-} before the axis index when configuring a physical joystick will
+invert that axis.  The default screen offsets for the mouse module are
+@samp{X=2,254} and @samp{Y=1.5,190.5} which gives reasonable behaviour for some
+games and utilities.  Those screen offsets are relative to a 256x192 active
+area (the dimensions were chosen when that was the only output), but will be
+scaled to the currently displayed active area.
+
+Joystick configuration is complex, but flexible.  For example, you can combine
+input sources by specifying different modules for each axis.  This
+configuration example creates a profile called @samp{mixed} that uses the mouse
+for the X-axis and firebutton, but the keys @key{A} and @key{Z} on the keyboard
+for the Y-axis.  It then ensures this profile is the one used when you press
+@kbd{@key{CTRL}+J}.
+
+@example
+joy mixed
+  joy-axis X=mouse:
+  joy-axis Y=keyboard:a,z
+  joy-button mouse:
+
+joy-virtual mixed
+@end example
+
+@node Gamepad mapping
+@subsection Gamepad mapping
+
+Although there is an approximation of consensus on what sort of controls go
+where on modern gamepads, they still tend to report their inputs in different
+orders.  SDL supports user-provided mappings of reported axes, buttons and hat
+inputs to a set of named controls, and XRoar can process a file containing
+these mappings one per line, even when not built using SDL (e.g. when using
+evdev under Linux).  Point XRoar to such a file with the @option{-joy-db-file}
+option.  At time of writing,
+@myuref{https://github.com/mdqinc/SDL_GameControllerDB, SDL_GameControllerDB}
+contains a comprehensive list of mappings.
+
+This diagram shows the controls that can be mapped:
+
+@image{gamepad, 4.75in,, Gamepad controls, png}
+
+The short codes in this diagram correspond to these control names, used in SDL
+mapping database lines:
+
+@multitable @columnfractions .15 .11 .22 .15 .11 .22
+@headitem Input @tab Short @tab SDL @tab Input @tab Short @tab SDL
+@item Axis 0 @tab LX @tab leftx @tab Button 0 @tab A @tab a
+@item Axis 1 @tab LY @tab lefty @tab Button 1 @tab B @tab b
+@item Axis 2 @tab RX @tab rightx @tab Button 2 @tab X @tab x
+@item Axis 3 @tab RY @tab righty @tab Button 3 @tab Y @tab y
+@item Axis 4 @tab LT @tab lefttrigger @tab Button 4 @tab BACK @tab back
+@item Axis 5 @tab RT @tab righttrigger @tab Button 5 @tab GUIDE @tab guide
+@item @tab @tab @tab Button 6 @tab START @tab start
+@item D-pad Left @tab DL @tab dpleft @tab Button 7 @tab LB @tab leftstick
+@item D-pad Right @tab DR @tab dpright @tab Button 8 @tab RB @tab rightstick
+@item D-pad Up @tab DU @tab dpup @tab Button 9 @tab LS @tab leftshoulder
+@item D-pad Down @tab DD @tab dpdown @tab Button 10 @tab RS @tab rightshoulder
+@end multitable
+
+Using the evdev support under Linux, for gamepads, whatever is mapped to the
+D-pad acts as an alternative to axes 0 & 1.  For joysticks, it provides an
+extra pair of axis controls.
+
+@c
+
+@node Printer options
+@section Printers
+
+@multitable @columnfractions .21 .75
+@item @option{-lp-file @var{file}}
+@tab Append printer output to @var{file}.
+@item @option{-lp-pipe @var{command}}
+@tab Pipe printer output to @var{command}.
+@end multitable
+
+@c
+
+@need 1000
+@node File options
+@section Files
+
+Many of these are mentioned in their appropriate section, but are collected
+here for reference.
+
+@multitable @columnfractions .21 .75
+@item @option{-load @var{file}}
+@tab Load or attach @var{file}.  XRoar will try to do the right thing based on the file type (usually determined by file extension).
+@item @option{-run @var{file}}
+@tab As @option{-load}, but try to autorun the file after attaching.
+@item @option{-load-tape @var{file}}
+@tab Attach @var{file} as tape image for reading.  @xref{Cassettes}.
+@item @option{-tape-write @var{file}}
+@tab Open @var{file} for tape writing.  @xref{Cassettes}.
+@item @option{-load-fd@var{X} @var{file}}
+@tab Load disk image file @var{file} into drive @var{X} (0--3).  @xref{Floppy disks}.
+@item @option{-load-hd@var{X} @var{file}}
+@tab Use @var{file} as the hard disk image for drive @var{X} (0 or 1).  @xref{Hard disks}.
+@item @option{-lp-file @var{file}}
+@tab Append printer output to @var{file}.  @xref{Printers}.
+@end multitable
+
+@c
+
+@node Firmware ROM image options
+@section Firmware ROM images
+
+@multitable @columnfractions .26 .70
+@item @option{-rompath @var{path}}
+@tab Set ROM search path.  A colon-separated list of directories.
+@item @option{-romlist @var{name}=@var{list}}
+@tab Define a ROM list.
+@item @option{-romlist-print}
+@tab Print defined ROM lists and exit.
+@item @option{-crclist @var{name}=@var{list}}
+@tab Define a CRC list.
+@item @option{-crclist-print}
+@tab Print defined CRC lists and exit.
+@item @option{-force-crc-match}
+@tab Force per-architecture CRC matching.
+@end multitable
+
+@c
+
+@node User interface options
+@section User interface
+
+@multitable @columnfractions .26 .70
+@item @option{-ui @var{module}}
+@tab Select user-interface module.  @option{-ui help} to list compiled-in modules.
+@item @option{-fs}
+@tab Start full-screen.  Toggle full-screen with @kbd{@key{CTRL}+F} or @kbd{@key{F11}}.
+@item @option{-fskip @var{frames}}
+@tab Specify frameskip.  Default is @samp{0}.  May be helpful on slower machines.
+@item @option{-vo-pixel-fmt @var{format}}
+@tab Pixel format to use.  @option{-vo-pixel-fmt help} for a list.
+@item @option{-gl-filter @var{filter}}
+@tab Filtering method to use when scaling the screen.  One of @samp{linear}, @samp{nearest} or @samp{auto} (the default).  OpenGL output modules only.
+@item @option{-vo-picture @var{picture}}
+@tab Initial picture area.  @option{-vo-picture help} for a list.
+@item @option{-no-vo-scale-60hz}
+@tab Disable vertical scaling for 60Hz video (enabled by default).
+@item @option{-invert-text}
+@tab Start up with inverted text mode.
+@item @option{-ccr @var{renderer}}
+@tab Composite video cross-colour renderer.  One of @samp{none}, @samp{simple}, @samp{5bit}, @samp{partial} or @samp{simulated}.  Default is @samp{5bit}.
+@item @option{-vo-brightness @var{value}}
+@tab Set initial brightness (0-100).  Default is 50.
+@item @option{-vo-contrast @var{value}}
+@tab Set initial contrast (0-100).  Default is 50.
+@item @option{-vo-colour @var{value}}
+@tab Set initial colour saturation (0-100).  Default is 50.
+@item @option{-vo-hue @var{value}}
+@tab Set initial hue (-179 to +180).  Default is 0.
+@item @option{-vo-colour-killer}
+@tab Enable colour killer (disabled by default).
+@end multitable
+
+The pixel format, specified with @option{-vo-pixel-fmt}, defaults to RGBA with
+8 bits per channel, but you may find other pixel layouts or lower bit depths
+render faster on your machine.
+
+The default picture area is 640x480 (emulated) pixels, equivalent to
+@option{-vo-picture title}, which is enough to show normal VDG output with a
+reasonable border.  You can change this to one of a set of defined areas:
+@option{-vo-picture action} and @option{-vo-picture underscan} show more of the
+picture, and may be more suitable when emulating a CoCo 3 which has some larger
+video modes.  @option{-vo-picture zoomed} crops to 512x384; enough to show
+standard VDG output with no borders at all.  @kbd{@key{CTRL}+@key{comma}} and
+@kbd{@key{CTRL}+@key{fullstop}} zoom the picture area out and in where
+supported.
+
+By default, 60Hz video is scaled vertically to give a 1:1.2 pixel aspect ratio.
+This more closely approximates the look of a real CRT (fewer scanlines mean
+each scanline appears taller within the same aspect ratio overall display).
+This can be disabled with @option{-no-vo-scale-60hz} to return to more square
+pixels.  50Hz displays tend to yield near-enough-square pixels anyway.
+
+Various levels of composite video rendering precision can be selected with
+@option{-ccr}, trading off CPU with accuracy.  @option{-ccr simulated} is the
+only option that tackles PAL video.  @option{-ccr partial} does pretty well for
+NTSC.  @option{-ccr 5bit} and @option{-ccr simple} both use LUTs to convert
+sequences of black & white into NTSC cross-colour.
+
+When the VDG is configured to generate black & white (resolution) graphics, it
+stops emitting a colourburst signal.  Colour displays may (but not always)
+recognise the lack of burst and stop trying to decode colour, giving a crisper
+display.  You can enable this behaviour with @option{-vo-colour-killer}.  NTSC
+machines add circuitry to reintroduce a (modified) burst to enable cross-colour
+in high resolution black & white, so enabling the colour killer would not
+prevent colour in these modes.
+
+A quirk of the VDG is that it can operate in-phase or 180° out of phase with
+its clock signal, and how it starts up is essentially random.  This clock
+signal is also used in NTSC machines to generate the colour subcarrier, which
+leads to machines generating the blue and red artefact colours randomly (but
+consistently, once running) swapped.  Games often prompt the user to ``Press
+Enter if the screen is red'', for example.  You can press @kbd{@key{CTRL}+A},
+to cycle through three modes: Off, Blue-red and Red-blue.  On the CoCo 3, a
+fourth mode is included that switches to the RGB output.  In PAL machines,
+"Blue-red" and "Red-blue" also select the alternate line phase switch, allowing
+for correct colour in games such as @cite{Tetris} by Ola Eldøy or @cite{Donut
+Dilemma} by Nick Marentes.
+
+Inverted text mode may be toggled by pressing @kbd{@key{CTRL}+@key{SHIFT}+I}.
+
+In the GTK+ and Windows interfaces, @clicksequence{View @click{} TV Controls}
+opens a control window allowing you to dynamically modify various display
+options.  Pressing @kbd{@key{CTRL}+@key{SHIFT}+V} will also open this
+window.
+
+@c
+
+@node Audio options
+@section Audio
+
+@multitable @columnfractions .28 .68
+@item @option{-ao @var{module}}
+@tab Select audio output module.  @option{-ao help} for a list.
+@item @option{-ao-device @var{device}}
+@tab Module-specific device specifier.  e.g. @file{/dev/dsp} for OSS.
+@item @option{-ao-format @var{format}}
+@tab Specify audio sample format.  @option{-ao-format help} for a list.
+@item @option{-ao-rate @var{hz}}
+@tab Specify audio frame rate, where supported.  The default is taken from the operating system if possible, otherwise it will usually be @samp{48000}.
+@item @option{-ao-channels @var{n}}
+@tab Specify number of channels (1 or 2).  Default is usually @samp{2}.
+@item @option{-ao-fragments @var{n}}
+@tab Specify number of audio fragments.
+@item @option{-ao-fragment-ms @var{ms}}
+@tab Specify audio fragment size in milliseconds.
+@item @option{-ao-fragment-frames @var{n}}
+@tab Specify audio buffer size in frames.
+@item @option{-ao-buffer-ms @var{ms}}
+@tab Specify total audio buffer size in milliseconds.
+@item @option{-ao-buffer-frames @var{n}}
+@tab Specify total audio buffer size in frames.
+@item @option{-ao-gain @var{db}}
+@tab Specify audio gain in dB relative to 0 dBFS.  Only negative values really make sense here.  Default: @samp{-3.0}
+@item @option{-ao-volume @var{volume}}
+@tab Older way to specify volume.  Simple linear scaling, using values 0--100.
+@end multitable
+
+Audio latency is a concern for emulators, so XRoar allows the buffering
+characteristics to be configured with the fragment and buffer options above.
+Not all audio modules support all options, but setting the total audio buffer
+size will usually have an effect.  Bear in mind that any figures reported by
+XRoar reflect what it was able to request, and won't include any extra
+buffering introduced by the underlying sound system.
+
+When the Orchestra 90-CC cartridge is attached, its stereo output needs to be
+mixed with the Dragon's normal audio.  To allow a small amount of headroom for
+this, the default gain is set to @samp{-3.0} (dB relative to full scale), but
+be aware that it would still be possible for this to clip depending on what's
+happening on the internal sound bus.  A setting of @option{-ao-gain -9.0} would
+give plenty of headroom (at the expense of a quieter overall sound).
+
+@c
+
+@node Debugging options
+@section Debugging
+
+@multitable @columnfractions .26 .70
+@item @option{-gdb}
+@tab Enable GDB target.
+@item @option{-gdb-ip @var{address}}
+@tab Address of interface for GDB target.  Default: @samp{127.0.0.1}
+@item @option{-gdb-port @var{port}}
+@tab Port for GDB target to listen on.  Default: @samp{65520}
+
+@item @option{-trace}
+@tab Start with trace mode on.  @kbd{@key{CTRL}+V} toggles.
+
+@item @option{-debug-fdc @var{flags}}@*@option{-debug-file @var{flags}}@*@option{-debug-gdb @var{flags}}@*@option{-debug-ui @var{flags}}
+@tab Various per-subsystem debugging flags.  The special value @samp{-1} enables all flags for the subsystem.
+
+@item @option{-v @var{level}@*-verbose @var{level}}
+@tab General debug verbosity (0--3).  Default: @samp{1}
+@item @option{-q}@*@option{-quiet}
+@tab Equivalent to @option{-verbose 0}.
+
+@item @option{-trap @var{condition}}
+@tab Configure a trap to fire on @var{condition}.
+@item @ @ @ @option{-trap-range @var{m}[-@var{n}]}
+@tab Perform trap's actions only on @var{m}th-@var{n}th trigger.
+@item @ @ @ @option{-trap-snap @var{file}}
+@tab Write snapshot at trap.
+@item @ @ @ @option{-trap-timeout @var{n}}
+@tab Quit emulator @var{n} seconds after trap.
+@item @ @ @ @option{-trap-trace}
+@tab Start trace mode at trap.
+@item @ @ @ @option{-trap-no-trace}
+@tab Stop trace mode at trap.
+
+@item @option{-timeout @var{n}}
+@tab Exit emulator after running for @var{n} seconds.
+@item @option{-timeout-motoroff @var{n}}
+@tab Exit emulator @var{n} seconds after cassette motor switches off, or end of tape reached.
+@item @option{-snap-motoroff @var{file}}
+@tab Write a snapshot to @var{file} each time the cassette motor switches off, or end of tape reached.
+@end multitable
+
+Floppy controller debugging can be enabled with @option{-debug-fdc @var{value}},
+where the value is a bitwise ORing of the following:
+
+@multitable @columnfractions .15 .81
+@item 0x0001
+@tab Show FDC commands.
+@item 0x0002
+@tab Show all FDC states.
+@item 0x0004
+@tab Hex dump of read/write sector data.
+@item 0x0008
+@tab Hex dump of Becker port conversation data.
+@item 0x0010
+@tab General FDC event debugging.
+@end multitable
+
+The GDB stub can also emit debug information about its own operation with
+@option{-debug-gdb @var{value}}, where value is a bitwise ORing of:
+
+@multitable @columnfractions .15 .81
+@item 0x0001
+@tab Connection open and close.
+@item 0x0002
+@tab Show packet data.
+@item 0x0004
+@tab Checksum reporting.
+@item 0x0008
+@tab Report on general queries.
+@end multitable
+
+The special value argument of -1 parses as @emph{all bits set}, and so enables
+all corresponding debug options.
+
+XRoar prints various other informational messages to standard output by
+default, including when the state of certain toggles is modified.  Verbosity
+can be changed with the @option{-verbose @var{level}} option.  @option{-quiet}
+is equivalent to @option{-verbose 0}.  Levels are:
+
+@multitable @columnfractions .15 .81
+@item 0
+@tab Quiet.  Only warnings and errors printed.
+@item 1
+@tab Print startup diagnostics and emulator state changes (default).
+@item 2
+@tab Report some emulated machine state changes.
+@item 3
+@tab Miscellaneous internal debugging.
+@end multitable
+
+To see debug output from the pre-built Windows binary, run with @option{-C} as
+the first option to attach to the parent console or create a new console
+window.
+
+Traps are a somewhat flexible way of triggering emulator actions on particular
+events.  Conditions can be:
+
+@multitable @columnfractions .21 .75
+@headitem Condition @tab Description
+@item immediate (or '-')
+@tab Trigger immediately.
+@item pc=@var{addr}
+@tab Trigger at CPU Program Counter value.
+@item read=@var{a}[-@var{b}]
+@tab Trigger on read from address range.
+@item write=@var{a}[-@var{b}]
+@tab Trigger on write to address range.
+@item access=@var{a}[-@var{b}]
+@tab Trigger on either read from or write to address range.
+@item tape-motor-off
+@tab Trigger when tape motor switches off.
+@end multitable
+
+A trap will usually only trigger once.  To make one persistent, specify
+@option{-trap-range 1-}.
+
+Some older options are now implemented in terms of traps:
+
+XRoar can be told to exit after a number of (emulated) seconds with the
+@option{-timeout @var{seconds}} option.  Equivalent to @option{-trap
+immediate}, @option {-trap-timeout @var{seconds}}.
+
+XRoar can quit a number of seconds after the cassette motor is switched off
+with the @option{-timeout-motoroff @var{seconds}} option.  This is useful in
+the case of automatic tape rewriting.  A value of 1 is usually sufficient to
+account for the brief motor click that occurs after header blocks and during
+gapped loading.  Equivalent to @option{-trap tape-motor-off},
+@option{-trap-timeout @var{seconds}}.
+
+Similarly, a snapshot can be automatically written after loading with the
+@option{-snap-motoroff @var{file}} option.   The file is overwritten each time
+the motor transitions to off.  This can be used to help analyse the machine
+state immediately after loading, before any autorun code has taken effect
+(specifying a @file{.ram} snapshot may be particularly useful here for
+analysis).  Equivalent to @option{-trap tape-motor-off}, @option{-trap-range
+1-}, @option{-trap-snap @var{file}}.
+
+@c
+
+@node Other options
+@section Other options
+
+@multitable @columnfractions .26 .70
+@headitem Help options
+@item @option{-config-print}
+@tab Print configuration to standard out.
+@item @option{-config-print-all}
+@tab Print configuration to standard out, including defaults.
+@item @option{-config-auto-save}
+@tab Write configuration to known location on exit.
+@item @option{-h, --help}
+@tab Print help text and exit.
+@item @option{-V, --version}
+@tab Print version information and exit.
+@end multitable
+
+In addition, various other options accept @samp{help} as an argument to print a
+list of values they accept.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Files
+@chapter Files
+
+If you ``Load'' a file, XRoar will determine its type using the filename
+extension and try to attach it in a way that makes sense for that file type.
+Load a file using @clicksequence{File @click{} Load}, @option{-load @var{file}}
+on the command line, or by pressing @kbd{@key{CTRL}+L}.
+
+If you ``Run'' a file, the file will be attached in the same way, but XRoar
+will also attempt to intelligently autorun any program.  Run a file using
+@clicksequence{File @click{} Run}, @option{-run @var{file}} on the command
+line, or by pressing @kbd{@key{CTRL}+@key{SHIFT}+L}.
+
+Cassettes, Floppy disks, and Hard disks are each discussed in @ref{Storage
+media}.  The other kinds of file recognised by XRoar are discussed here.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Snapshots
+@section Snapshots
+
+XRoar can save a snapshot of the emulated machine state and read it back in
+later.  To save a snapshot, press @kbd{@key{CTRL}+S}.  When using
+@kbd{@key{CTRL}+L} to load a file, anything ending in @file{.sna} will be
+recognised as a snapshot.
+
+Most internal state should be dumped to the snapshot.  External data like ROM
+images or disk image files will be referenced by name, so when you read the
+snapshot back in, they need to exist in the same place they were before.
+
+State that is explicitly @emph{not} included in snapshots includes Becker port
+DriveWire connections and GDB listen parameters.  These will use your local
+settings, which default to interacting with the local host only.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Screenshots
+@section Screenshots
+
+XRoar can save a screenshot in PNG format.  Press
+@kbd{@key{CTRL}+@kbd{SHIFT}+S} or select @clicksequence{File @click{}
+Screenshot to PNG}.
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Binary files
+@section Binary files
+
+File types containing raw binary data to be loaded into RAM:
+
+@multitable @columnfractions .15 .80
+@headitem Extension @tab Description
+@item .bin,@ .dgn,@ .cco
+@tab Binary file (DragonDOS or CoCo).  XRoar can load these directly into memory
+and optionally autorun them.  Read-only
+@item .hex
+@tab Intel hex record.  An ASCII format that encodes binary data and
+where in memory to load it.  Read-only
+@end multitable
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@node Firmware ROM images
+@section Firmware ROM images
+
+Firmware ROM image files are configured as part of a machine or a cartridge.
+They have a filename extension of @file{.rom}, and can be specified as:
+
+@need 1250
+@itemize @bullet
+@item Complete path to a file.
+@item Base filename of an image, to be discovered within a search path.
+@item Base filename of an image, omitting the extension.  XRoar will append @file{.rom}.
+@item An @samp{@@} character followed by the name of a ROM list.
+@end itemize
+
+A ROM list is a comma-separated list of images, each following the rules above.
+ROM lists may refer to other ROM lists.  Define a ROM list with
+@option{-romlist @var{name}=@var{image}[,@var{image}]@dots{}}.  View the
+defined ROM lists with @option{-romlist-print}.
+
+To make life easier, the default image for each type of machine or cartridge
+usually refers to a ROM list which contains all the corresponding filenames
+seen in the wild, the primary examples being:
+
+@multitable {Tandy Super ECB PAL XXXXX} {Xdragondos_compatxx} {dplus49b, sdose6, ddos10XXXXX}
+@headitem Firmware ROM @tab ROM list @tab Canonical image names
+@item Dragon 32 BASIC @tab @samp{@@dragon32} @tab @file{d32.rom}
+@item Dragon 64 32K BASIC @tab @samp{@@dragon64} @tab @file{d64_1.rom}
+@item Dragon 64 64K BASIC @tab @samp{@@dragon64_alt} @tab @file{d64_2.rom}
+@item Dragon 200-E 32K BASIC @tab @samp{@@dragon200e} @tab @file{d200e_1.rom}
+@item Dragon 200-E 64K BASIC @tab @samp{@@dragon200e_alt} @tab @file{d200e_2.rom}
+@item Dragon 200-E Charset @tab @samp{@@dragon200e_charset} @tab @file{d200e_26.rom}
+@item Dragon Professional Boot @tab @samp{@@dragonpro_boot} @tab @file{alpha-boot-v1.0.rom}
+@item Dragon Professional BASIC @tab @samp{@@dragonpro_basic} @tab @file{alpha-basic.rom}
+@item Tandy Colour BASIC @tab @samp{@@coco} @tab @file{bas13.rom, bas12.rom, bas11.rom, bas10.rom}
+@item Tandy Extended BASIC @tab @samp{@@coco_ext} @tab @file{extbas11.rom, extbas10.rom}
+@item Tandy Super ECB (CoCo 3) @tab @samp{@@coco3} @tab @file{coco3.rom}
+@item Tandy Super ECB (PAL CoCo 3) @tab @samp{@@coco3p} @tab @file{coco3p.rom}
+@item Tandy Microcolour BASIC @tab @samp{@@mc10} @tab @file{mc10.rom}
+@item Alice Microcolour BASIC @tab @samp{@@alice} @tab @file{alice.rom}
+@item Tandy Advanced Colour BASIC @tab @samp{@@deluxecoco} @tab @file{deluxe.rom}
+@item DragonDOS @tab @samp{@@dragondos_compat} @tab @file{dplus49b.rom, sdose6.rom, ddos10.rom}
+@item Delta System @tab @samp{@@delta} @tab @file{delta2.rom, delta.rom}
+@item RS-DOS @tab @samp{@@rsdos} @tab @file{disk11.rom, disk10.rom}
+@item RS-DOS with Becker port @tab @samp{@@rsdos_becker} @tab @file{hdbdw3bck.rom}
+@item Orchestra 90-CC @tab @samp{orch90.rom} @tab
+@end multitable
+
+The default search path for images specified only as a base filename varies by
+platform, and is detailed in @ref{Getting started}.  This path can can be
+overridden with the option @option{-rompath @var{path}}, where @var{path} is a
+colon-separated list of directories to search.
+
+A CRC32 value is calculated and reported for each ROM image loaded.  XRoar uses
+these CRCs to determine whether certain breakpoints can be used (e.g. for fast
+tape loading).  The lists of CRCs matched can be defined in a similar way to
+ROM lists using the @option{-crclist @var{list}=@var{crc}[,@var{crc}]@dots{}}
+option.  Each @var{crc} is a 8-digit hex number preceded by @samp{0x}, or the
+name of a nested list preceded by @samp{@@}.  Use this if you have a modified
+version of a BASIC ROM that maintains compatible entry points with an original.
+View the current lists with @option{-crclist-print}.
+
+Sometimes it may be useful to force CRC matching so that breakpoints apply
+(e.g. you are modifying a ROM image and don't wish to have to add its CRC to
+the match list each time you modify it).  The @option{-force-crc-match} option
+forces the CRCs to be as if an original ROM image were loaded.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Acknowledgements
+@appendix Acknowledgements
+
+Darren Atkinson's @cite{Motorola 6809 and Hitachi 6309 Programmers Reference}
+has been very useful for 6309 support and fleshing out some of the illegal
+instructions on the 6809.
+
+David Banks has published a lot of information on undocumented 6809 and 6309
+behaviour learned as a result of hardware fuzzing.
+
+Alan Cox contributed the IDE code.
+
+Greg Dionne and Ron Klein have been very helpful with information and testing
+of MC-10 related behaviour.
+
+Phill Harvey-Smith is the primary source of information about the Dragon
+Professional, and as well as his comments about it for MAME, has traced
+various other connections on his prototype board.
+
+John Kowalski's GIME register reference was invaluable in getting early CoCo 3
+support.  The ability to see his composite video demos using XRoar's simulation
+code was also a big nudge towards even starting to add that support.
+
+Tim Lindner has made many of his test cases public, helping with CoCo 3,
+6309, and font accuracy.
+
+Stewart Orchard has offered up much sage wisdom over the years.  In particular,
+he figured out what was likely going on with SAM VDG address glitching.
+
+Tormod Volden contributed support for his NX32 and MOOH devices (including
+general SPI and SD image support).
+
+Various other people have also provided feedback or test cases that have helped
+nail down bugs; read the ChangeLog for details.
+
+And thanks to all the people on the
+@myuref{https://archive.worldofdragon.org/phpBB3/, Dragon Archive Forums},
+IRC and CoCo Discord that have provided helpful feedback and insight.
+
+Various @myuref{https://www.bbc.co.uk/rd/publications, BBC R&D White Papers}
+and @cite{Video Demystified} by Keith Jack were good references while working
+on composite video simulation.
+
+And finally, a nod to young me, who did some research into the illegal
+behaviours of TFR and EXG, and into how the SAM and VDG interact.  Old me has
+spent more time with an oscilloscope, but also keeps introducing bugs into the
+code.
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node Keyboard shortcuts
+@appendix Keyboard shortcuts
+
+A summary of commonly available keyboard shortcuts.
+
+@multitable {XXXXXXXXXXX} {XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+@item @kbd{@key{CTRL}+[1-4]} @tab Insert disk into drive 1--4.
+@item @kbd{@key{CTRL}+@key{SHIFT}+[1-4]} @tab Create new disk in drive 1--4.
+@item @kbd{@key{CTRL}+[5-8]} @tab Toggle write enable on disk in drive 1--4.
+@item @kbd{@key{CTRL}+@key{SHIFT}+[5-8]} @tab Toggle write back on disk in drive 1--4.
+@item @kbd{@key{CTRL}+A} @tab Cycle through cross-colour modes (and RGB on CoCo 3).
+@item @kbd{@key{CTRL}+D} @tab Open disk control tool (GTK+ & Windows only).
+@item @kbd{@key{CTRL}+@key{SHIFT}+D} @tab Flush disk images.
+@item @kbd{@key{CTRL}+E} @tab Toggle cartridge on/off - reset to take effect.
+@item @kbd{@key{CTRL}+F}@*@ @ @ or @kbd{@key{F11}} @tab Toggle full screen mode.
+@item @kbd{@key{CTRL}+@key{SHIFT}+H}@*@ @ @ or @kbd{@key{PAUSE}} @tab Halt the CPU (not on the MC-10).
+@item @kbd{@key{CTRL}+@key{SHIFT}+I} @tab Toggle text mode inverse video.
+@item @kbd{@key{CTRL}+J} @tab Cycle through joystick emulation modes (None, Right, Left).
+@item @kbd{@key{CTRL}+@key{SHIFT}+J} @tab Swap left and right joysticks.
+@item @kbd{@key{CTRL}+K} @tab Toggle Dragon/CoCo keyboard layout (not on the MC-10).
+@item @kbd{@key{CTRL}+L} @tab Load a file.
+@item @kbd{@key{CTRL}+@key{SHIFT}+L} @tab Load and attempt to autorun a file.
+@item @kbd{@key{CTRL}+M} @tab Toggle menubar.
+@item @kbd{@key{CTRL}+@key{SHIFT}+P} @tab Flush printer output.
+@item @kbd{@key{CTRL}+Q} @tab Quit emulator.
+@item @kbd{@key{CTRL}+R} @tab Soft reset emulated machine.
+@item @kbd{@key{CTRL}+@key{SHIFT}+R} @tab Hard reset emulated machine.
+@item @kbd{@key{CTRL}+S} @tab Save a snapshot.
+@item @kbd{@key{CTRL}+@key{SHIFT}+S} @tab Write screenshot as PNG.
+@item @kbd{@key{CTRL}+T} @tab Open the tape control tool (GTK+ & Windows only).
+@item @kbd{@key{CTRL}+V} @tab Toggle trace mode.
+@item @kbd{@key{CTRL}+@key{SHIFT}+V} @tab Open TV controls window (GTK+ & Windows only).
+@item @kbd{@key{CTRL}+W} @tab Attach a virtual cassette file for writing.
+@item @kbd{@key{CTRL}+Z} @tab Enable keyboard translation mode.
+@item @kbd{@key{CTRL}+@key{-}} @tab Zoom out (smaller emulated display).
+@item @kbd{@key{CTRL}+@key{+}} @tab Zoom in (larger emulated display).
+@item @kbd{@key{CTRL}+@key{<}} @tab Zoom out picture (see more border).
+@item @kbd{@key{CTRL}+@key{>}} @tab Zoom in picture area (see less border).
+@item @kbd{@key{F12}} @tab Run at maximum speed while held.
+@item @kbd{@key{SHIFT}+@key{F12}} @tab Maximum speed toggle.
+@end multitable
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@node File formats
+@appendix File formats
+
+XRoar recognises most file types by their file extension.
+
+@multitable @columnfractions .20 .75
+
+@headitem Extension @tab Description
+
+@item @file{.cas, .c10}
+@tab Compact cassette image.  CUE data can optionally mark up silence and the
+wavelength to use for each bit.
+@item @file{.wav}
+@tab Standard audio data file can be used as a cassette image.
+@item @file{.k7}
+@tab Another less popular compact cassette image format.  Read-only.
+@item @file{.bas, .asc}
+@tab ASCII BASIC files.  XRoar will wrap the ASCII text in the appropriate file
+structure to present to the emulated machine as saved ASCII BASIC.  On the
+MC-10, these will be ``quick-typed'' instead, as these machines do not support
+ASCII BASIC files on tape.  Read-only.
+
+@item @file{.dmk}
+@tab Disk image file in a format defined by David Keil.  These images store a lot of
+information about the structure of a disk and support both single and double
+density data.
+@item @file{.jvc, .dsk}
+@tab Disk image file in a basic sector-by-sector format with optional
+header information.
+@item @file{.os9}
+@tab Like @file{.dsk}, but XRoar knows it can inspect the OS-9 filesystem for
+geometry information.
+@item @file{.vdk}
+@tab Another disk image file format, used by PC-Dragon.
+
+@item @file{.sna}
+@tab XRoar-specific snapshots preserve machine state.  Old v1 snapshots can
+still be read, but writing a snapshot uses the new v2 format.
+@item @file{.ram}
+@tab When a @file{.ram} extension is given while writing a snapshot, a simple
+RAM dump is generated instead.  Write-only.
+
+@item @file{.bin, .dgn, .cco}
+@tab Binary file in DragonDOS or RS-DOS format (autodetected).  Read-only.
+@item @file{.hex}
+@tab Intel hex record.  An ASCII format that encodes binary data and where in
+memory to load it.  Read-only.
+
+@item @file{.rom, .ccc}
+
+@tab ROM image file.  Simple binary dump of a ROM IC.  Machine firmware images
+and ROM cartridge images are in this format.  Read-only.
+
+@item @file{.ide}
+
+@tab HD image file assumed to be 512 bytes per sector with IDE ``magic'' and
+IDENTIFY DEVICE metadata in the first 1024 bytes.
+@item @file{.img}
+@tab HD image file assumed to be 512 bytes per sector with no header.
+@item @file{.vhd}
+@tab HD image file assumed to be 256 bytes per sector with no header.
+
+@end multitable
+
+@c = === === === === === === === === === === === === === === === === === ===
+
+@bye

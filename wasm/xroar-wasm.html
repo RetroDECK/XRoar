@@ -1,0 +1,832 @@
+<!--
+
+XRoar web furniture.
+
+This is a "get it working" environment.  It's not the prettiest, but it works.
+Feel free to adapt this as you see fit.
+
+Functions starting wasm_ are interfaces to WebAssembly to affect emulator
+operation - usually used as onchange or onclick handlers for the controls.
+
+Functions starting ui_ are callbacks from WebAssembly used to update UI
+elements.  These need to exist!
+
+TODO: Currently there are calls to resumeAudio() sprinkled all over the code so
+that as many things as possible trigger working around Chromium's disabling of
+audio by default.  I completely sympathise with Google's intentions there
+(nobody wants advertisers yelling at them without permission), but there has to
+be a better way to make this usable...
+
+-->
+
+<!-- This file declares an object called 'software' that is used to populate a
+     selection of drop-downs providing access to online software images. -->
+<script src="software.js"></script>
+
+<!-- Canvas for Wasm to draw into -->
+<canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!-- start tabs container -->
+<div id='controls' class="tabs-container">
+
+<!-- start tab -->
+<input id="tab0" type="radio" name="tabs" checked />
+<label for="tab0" class="tab-label">Software</label>
+<div class="tab-content">
+
+<!-- Software tab, column 1 -->
+<div class='column' style='width:49%'>
+
+<h3>Online software:</h3>
+
+<!-- List of online software is dynamically populated -->
+<table id='software' class='vheader centre-vertically' style='width:100%'>
+</table>
+
+</div>
+
+<!-- Software tab, column 2 -->
+<div class='column' style='width:49%'>
+
+<h3 id='software-title'></h3>
+<p id='software-author'></p>
+<p id='software-publisher'></p>
+<div id='software-text'></div>
+
+</div>
+
+<div class='breakfloat'></div>
+
+</div>
+<!-- end tab -->
+
+<!-- start tab -->
+<input id="tab1" type="radio" name="tabs" />
+<label for="tab1" class="tab-label">File</label>
+<div class="tab-content">
+
+<!-- File tab, button bar -->
+<p><label title="Load local file into emulated machine" class='button'><input type='file' onchange='file_input_onload(this,load_type.load,0)'>Load...</label>
+<label title="Load local file and try to autorun" class='button'><input type='file' onchange='file_input_onload(this,load_type.run,0)'>Run...</label>
+<label title="Type from file" class='button'><input type='file' onchange='file_input_onload(this,load_type.text,0)'>Type...</label>
+<span class='button' onclick='download_snapshot()'>Save snapshot...</span>
+<span id='drive_info'></span>
+
+<!-- File tab, no columns -->
+<table class='vheader centre-vertically'>
+
+<tr><th>Drive 1:</th>
+    <td><span title="New disk in drive 1" class='button' onclick='wasm_new_disk(0)'>&#x2795;</span></td>
+    <td><span title="Eject disk in drive 1" class='button' onclick='wasm_eject_disk(0)'>&#x23cf;</span></td>
+    <td><span title="Save disk in drive 1" class='button' onclick='download_disk(0)'>Save...</span></td>
+    <td><label title="Use local disk image file in drive 1" class='button'><input type='file' onchange='file_input_onload(this,load_type.disk,0)'>Insert...</label></td>
+    <td><span id='disk0' class='filename'></span></td>
+</tr>
+
+<tr><th>Drive 2:</th>
+    <td><span title="New disk in drive 2" class='button' onclick='wasm_new_disk(1)'>&#x2795;</span></td>
+    <td><span title="Eject disk in drive 2" class='button' onclick='wasm_eject_disk(1)'>&#x23cf;</span></td>
+    <td><span title="Save disk in drive 2" class='button' onclick='download_disk(1)'>Save...</span></td>
+    <td><label title="Use local disk image file in drive 2" class='button'><input type='file' onchange='file_input_onload(this,load_type.disk,1)'>Insert...</label></td>
+    <td><span id='disk1' class='filename'></span></td>
+</tr>
+
+<tr><th>Drive 3:</th>
+    <td><span title="New disk in drive 3" class='button' onclick='wasm_new_disk(2)'>&#x2795;</span></td>
+    <td><span title="Eject disk in drive 3" class='button' onclick='wasm_eject_disk(2)'>&#x23cf;</span></td>
+    <td><span title="Save disk in drive 3" class='button' onclick='download_disk(2)'>Save...</span></td>
+    <td><label title="Use local disk image file in drive 3" class='button'><input type='file' onchange='file_input_onload(this,load_type.disk,2)'>Insert...</label></td>
+    <td><span id='disk2' class='filename'></span></td>
+</tr>
+
+<tr><th>Drive 4:</th>
+    <td><span title="New disk in drive 4" class='button' onclick='wasm_new_disk(3)'>&#x2795;</span></td>
+    <td><span title="Eject disk in drive 4" class='button' onclick='wasm_eject_disk(3)'>&#x23cf;</span></td>
+    <td><span title="Save disk in drive 4" class='button' onclick='download_disk(3)'>Save...</span></td>
+    <td><label title="Use local disk image file in drive 4" class='button'><input type='file' onchange='file_input_onload(this,load_type.disk,3)'>Insert...</label></td>
+    <td><span id='disk3' class='filename'></span></td>
+</tr>
+
+<tr><th>HD 0:</th>
+    <td></td>
+    <td></td>
+    <td><span title="Save HD 0" class='button' onclick='download_hd(0)'>Save...</span></td>
+    <td><label title="Use local HD image file as HD 0" class='button'><input type='file' onchange='file_input_onload(this,load_type.hd,0)'>Attach...</label></td>
+    <td><span id='hd0' class='filename'></span></td>
+</tr>
+
+<tr><th>HD 1:</th>
+    <td></td>
+    <td></td>
+    <td><span title="Save HD 1" class='button' onclick='download_hd(1)'>Save...</span></td>
+    <td><label title="Use local HD image file as HD 1" class='button'><input type='file' onchange='file_input_onload(this,load_type.hd,1)'>Attach...</label></td>
+    <td><span id='hd1' class='filename'></span></td>
+</tr>
+
+<tr><th>Tape:</th>
+    <td><span id='tape_play' title="Play (unpause)" class='button' onclick='wasm_set_int("tape_playing", 1, 1)'>&#x23f5;</span><span id='tape_pause' title="Pause" class='button' onclick='wasm_set_int("tape_playing", 0, 1)' style='display:none'>&#x23f8;</span></td>
+    <td><span title="Eject tape" class='button' onclick='wasm_eject_tape()'>&#x23cf;</span></td>
+    <td><label title="Use local tape image file" class='button'><input type='file' onchange='file_input_onload(this,load_type.tape,0)'>Insert...</label></td>
+    <td><span id='tape' class='filename'></span></td>
+</tr>
+
+</table>
+
+</div>
+<!-- end tab -->
+
+<!-- start tab -->
+<input id="tab2" type="radio" name="tabs" />
+<label for="tab2" class="tab-label">View</label>
+<div class="tab-content">
+
+<!-- View tab, column 1 -->
+<div class='column' style='width:49%'>
+
+<table class='vheader centre-vertically'>
+
+<tr title="Audio gain (dBFS)"><th>Audio gain:</td><td><input type='range' min="-50.0" max="3.0" step="1.0" id='gain' onchange='console.log(this.value)' oninput='wasm_set_float("gain", this.value, 0)'/></td><td id='gain_value' onclick='wasm_set_float("gain", -3.0, 1)'></td></tr>
+
+<tr title="Picture viewport"><th>Picture:</td><td><select id='picture' onchange='wasm_set_int("picture", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Brightness"><th>Brightness:</td><td><input type='range' min="0" max="100" step="1" id='brightness' oninput='wasm_set_int("brightness", this.value, 0)'/></td><td id='brightness_value' onclick='wasm_set_int("brightness", 52, 1)'></td></tr>
+
+<tr title="Contrast"><th>Contrast:</td><td><input type='range' min="0" max="100" step="1" id='contrast' oninput='wasm_set_int("contrast", this.value, 0)'/></td><td id='contrast_value' onclick='wasm_set_int("contrast", 52, 1)'></td></tr>
+
+<tr title="Colour (saturation)"><th>Colour:</td><td><input type='range' min="0" max="100" step="1" id='saturation' oninput='wasm_set_int("saturation", this.value, 0)'/></td><td id='saturation_value' onclick='wasm_set_int("saturation", 50, 1)'></td></tr>
+
+<tr title="Hue"><th>Hue:</td><td><input type='range' min="-179" max="180" step="1" id='hue' oninput='wasm_set_int("hue", this.value, 0)'/></td><td id='hue_value' onclick='wasm_set_int("hue", 0, 1)'></td></tr>
+
+<tr title="Vertically scale 60Hz display"><th>60Hz scaling:</td><td><input type='checkbox' id='ntsc_scaling' onchange='wasm_set_int("ntsc_scaling", this.checked, 1)'/></td><td/></tr>
+
+</table>
+
+</div>
+
+<!-- View tab, column 2 -->
+<div class='column' style='width:49%'>
+
+<table class='vheader centre-vertically'>
+
+<tr title="TV Input"><th>Input:</td><td><select id='tv_input' onchange='wasm_set_int("tv_input", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Cross-colour renderer complexity"><th>Renderer:</td><td><select id='ccr' onchange='wasm_set_int("ccr", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Sampling frequency"><th>F<sub>S</sub>:</td><td><select id='cmp_fs' onchange='wasm_set_int("cmp_fs", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Colour subcarrier frequency"><th>F<sub>SC</sub>:</td><td><select id='cmp_fsc' onchange='wasm_set_int("cmp_fsc", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Colour system"><th>System:</td><td><select id='cmp_system' onchange='wasm_set_int("cmp_system", this.options[this.selectedIndex].value, 1)'/></td><td/></tr>
+
+<tr title="Disable colour processing in mono video modes"><th>Colour killer:</td><td><input type='checkbox' id='cmp_colour_killer' onchange='wasm_set_int("cmp_colour_killer", this.checked, 1)'/></td><td/></tr>
+
+<tr><td colspan='3'>&nbsp;</td></tr>
+
+<tr><th title="Invert text mode characters">Inverse text:</td><td><input type='checkbox' id='vdg_inverse' onchange='wasm_set_int("vdg_inverse", this.checked, 1)'/></td><td/></tr>
+
+</table>
+
+</div>
+
+<div class='breakfloat'></div>
+
+<!-- View tab, button bar -->
+<p><span class='button' onclick='wasm_set_int("fullscreen", 1, 1)'>Full Screen</span> (<kbd>Control</kbd>+<kbd>F</kbd> to exit)
+
+</div>
+<!-- end tab -->
+
+<!-- start tab -->
+<input id="tab3" type="radio" name="tabs" />
+<label for="tab3" class="tab-label">Hardware</label>
+<div class="tab-content">
+
+<!-- Hardware tab, no columns -->
+<table class='vheader centre-vertically'>
+
+<!-- Machine and cartridge selections are dynamically populated -->
+
+<tr title="Machine to emulate"><th>Machine:</td><td><select id='machine' onchange='wasm_set_int("machine", this.options[this.selectedIndex].value, 1)'/></td></tr>
+
+<tr title="Use cartridge in current machine (may need hard reset)"><th>Cartridge:</td><td><select id='cart' onchange='wasm_set_int("cartridge", this.options[this.selectedIndex].value, 1)'/></td></tr>
+
+<tr title="Right joystick emulation"><th>Right joystick:</td><td><select id='right-joystick' onchange='wasm_set_joystick(0,this.options[this.selectedIndex].value)'/></td></tr>
+
+<tr title="Left joystick emulation"><th>Left joystick:</td><td><select id='left-joystick' onchange='wasm_set_joystick(1,this.options[this.selectedIndex].value)'/></td></tr>
+
+</table>
+
+<!-- Hardware tab, button bar -->
+<p><span class='button' onclick='wasm_soft_reset()'>Soft Reset</span>
+<span class='button' onclick='wasm_hard_reset()'>Hard Reset</span>
+
+</div>
+<!-- end tab -->
+
+<!-- start tab -->
+<input id="tab99" type="radio" name="tabs" />
+<label for="tab99" class="tab-label">Help</label>
+<div class="tab-content">
+
+<table>
+<tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Cycle TV input</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Toggle cartridge</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Toggle full screen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd></td><td>Toggle inverse text</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td>Soft reset</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd></td><td>Hard reset</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>,</kbd></td><td>Zoom out picture</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>.</kbd></td><td>Zoom in picture</td></tr>
+</table>
+
+<p>Read more <a href='https://www.6809.org.uk/xroar/online/about.shtml'>about XRoar Online</a>.
+
+</div>
+<!-- end tab -->
+
+</div>
+<!-- end tabs container -->
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<script>
+
+	var Module = {
+		canvas: (function() { return document.getElementById('canvas'); })(),
+		initial_resize: 0,
+		is_fullscreen: 0,
+		arguments: [ '-no-vo-colour-killer', '-no-disk-auto-os9', '-ao-fragments', '3' ],
+	};
+
+	var drive_filename = [ null, null, null, null ];
+	var hd_filename = [ null, null ];
+
+	// Initialisation that depends on the emscripten runtime being fully
+	// initialised.
+	Module.onRuntimeInitialized = function() {
+		// Wrap C functions in JS for convenience:
+		wasm_load_file = Module.cwrap('wasm_load_file', null, [ 'string', 'number', 'number' ]);
+
+		let args = window.location.search.substr(1).split('&');
+		for (let arg of args) {
+			if (arg.substring(0, 1) == '-') {
+				if (arg.includes('=')) {
+					let [k, v] = arg.split('=');
+					v = decodeURIComponent(v.replace(/\+/g, '%20'));
+					Module.arguments.push(k, v);
+				} else {
+					Module.arguments.push(arg);
+				}
+			}
+		}
+	};
+
+	// Work-around chromium autoplay policy, by Beuc.
+	// https://github.com/emscripten-core/emscripten/issues/6511
+	function resumeAudio(e) {
+		if (Module === undefined
+				|| typeof Module.SDL2 == 'undefined'
+				|| typeof Module.SDL2.audioContext == 'undefined')
+			return;
+		if (Module.SDL2.audioContext.state == 'suspended') {
+			Module.SDL2.audioContext.resume();
+		}
+		if (Module.SDL2.audioContext.state == 'running') {
+			document.getElementById('canvas').removeEventListener('click', resumeAudio);
+			document.removeEventListener('keydown', resumeAudio);
+		}
+	}
+	document.getElementById('canvas').addEventListener('click', resumeAudio);
+	document.addEventListener('keydown', resumeAudio);
+
+	// Build drop-down lists of online software
+	{
+		var table = document.getElementById('software');
+		for (var i = 0; i < software.length; ++i) {
+			const section = software[i];
+			var tr = document.createElement('tr');
+			tr.setAttribute('title', section.description);
+			table.appendChild(tr);
+			var th = document.createElement('th');
+			th.innerHTML = section.name + ":";
+			tr.appendChild(th);
+			var td = document.createElement('td');
+			var select = document.createElement('select');
+			select.setAttribute('id', 'software:'+i);
+			select.setAttribute('style', 'width: 90%');
+			select.setAttribute('onchange', 'start_selected_software(this, this.options[this.selectedIndex].value)');
+			var option = document.createElement('option');
+			option.setAttribute('value', '');
+			option.innerHTML = "-";
+			select.appendChild(option);
+			for (var j = 0; j < section.entries.length; ++j) {
+				const entry = section.entries[j];
+				var option = document.createElement('option');
+				option.setAttribute('value', i+","+j);
+				option.setAttribute('title', entry.publisher ?? entry.author);
+				option.innerHTML = entry.name;
+				select.appendChild(option);
+			}
+			td.appendChild(select);
+			tr.appendChild(td);
+			table.appendChild(tr);
+		}
+	}
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	// Second argument to file_input_onload() advises how to treat a file:
+	const load_type = {
+		load: 0,  // attach (autodetect type)
+		run:  1,  // attach and autorun (autodetect type)
+		tape: 2,  // attach tape
+		disk: 3,  // attach disk
+		text: 4,  // type BASIC from file
+		hd:   5,  // attach HD image
+	};
+
+	// Generic file upload handler.  Creates a file within the MEMFS with
+	// the contents supplied to the input and call wasm_load_file().
+	function file_input_onload(el, loadtype, drive) {
+		resumeAudio();
+		if (el.files.length == 0)
+			return;
+		var file = el.files[0];
+		var fr = new FileReader();
+		fr.onload = function () {
+			var data = new Uint8Array(fr.result);
+			Module.FS.writeFile(file.name, data);
+			wasm_load_file(file.name, loadtype, drive);
+			el.value = '';
+		};
+		fr.readAsArrayBuffer(file);
+		Module.canvas.focus();
+	}
+
+	// Get program details from the configured list of online software.
+	// Configures a machine as specified, attaches necessary media images,
+	// and performs whatever actions are necessary to run the software.
+	function start_selected_software(select, value) {
+		resumeAudio();
+		setTimeout(function(){select.value='';}, 1000);
+		Module.canvas.focus();
+		if (typeof value != 'string') {
+			return;
+		}
+		var [i,j] = value.split(',');
+		var program = software[i].entries[j];
+		start_program(program);
+	}
+
+	function start_program(program) {
+
+		if ('tape' in program) {
+			wasm_load_file(program.tape, load_type.tape, 0);
+		}
+
+		for (let i = 0; i < 4; ++i) {
+			let disk = 'disk'+i;
+			if (disk in program) {
+				wasm_load_file(program[disk], load_type.disk, i);
+			}
+		}
+
+		for (let i = 0; i < 2; ++i) {
+			let hd = 'hd'+i;
+			if (hd in program) {
+				wasm_load_file(program[hd], load_type.hd, i);
+			}
+		}
+
+		Module.ccall('wasm_set_machine_cart', null, [ 'string', 'string', 'string', 'string' ], [ program.machine, program.cart, program.cart_rom, program.cart_rom2 ]);
+
+		var rjoy = ('joy_right' in program) ? program.joy_right : '';
+		var ljoy = ('joy_left' in program) ? program.joy_left : '';
+		wasm_set_joystick_by_name(0, rjoy);
+		wasm_set_joystick_by_name(1, ljoy);
+
+		var { title, name, author, publisher, text } = program;
+
+		document.getElementById("software-title").innerHTML = title ? title : name;
+		document.getElementById("software-author").innerText = author ? "Author: " + program.author : "";
+		document.getElementById("software-publisher").innerText = publisher ? "Publisher: " + program.publisher : "";
+		document.getElementById("software-text").innerHTML = text ? text : "";
+
+		if ('ccr' in program) {
+			wasm_set_int("ccr", program.ccr, 1);
+		}
+
+		if ('tv_input' in program) {
+			wasm_set_int("tv_input", program.tv_input);
+		}
+
+		wasm_eject_tape();
+		for (let i = 0; i < 4; ++i) {
+			wasm_eject_disk(i);
+		}
+
+		if ('autorun' in program) {
+			if (program.autorun.split('.').pop().localeCompare('bin')) {
+				setTimeout(wasm_load_file, 2000, program.autorun, load_type.run, 0);
+			} else {
+				wasm_load_file(program.autorun, load_type.run, 0);
+			}
+		}
+
+		if ('type' in program) {
+			wasm_load_file(program.text, load_type.text, 0);
+		}
+
+		if ('basic' in program) {
+			Module.ccall('wasm_queue_basic', null, [ 'string' ], [ program.basic ]);
+		}
+
+	}
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	// Hard reset machine
+	function wasm_hard_reset() {
+		resumeAudio();
+		Module.ccall('xroar_hard_reset', null, [], []);
+	}
+
+	// Soft reset machine
+	function wasm_soft_reset() {
+		resumeAudio();
+		Module.ccall('xroar_soft_reset', null, [], []);
+	}
+
+	// Press a key
+	function wasm_scan_press(scancode) {
+		Module.ccall('wasm_scan_press', null, [ 'number' ], [ scancode ]);
+	}
+
+	// Release a key
+	function wasm_scan_release(scancode) {
+		Module.ccall('wasm_scan_release', null, [ 'number' ], [ scancode ]);
+	}
+
+	// Map a supported input device to emulated joystick port
+	function wasm_set_joystick(joy, value) {
+		resumeAudio();
+		Module.ccall('wasm_set_joystick_port', null, [ 'number', 'number' ], [ joy, value ]);
+		Module.canvas.focus();
+	}
+
+	// Map a supported input device to emulated joystick port by name (used when
+	// starting software from the menu)
+	function wasm_set_joystick_by_name(joy, value) {
+		resumeAudio();
+		Module.ccall('wasm_set_joystick_by_name', null, [ 'number', 'string' ], [ joy, value ]);
+		Module.canvas.focus();
+	}
+
+	// Insert new disk into specific drive
+	function wasm_new_disk(drive) {
+		Module.ccall('wasm_new_disk', null, [ 'number' ], [ drive ]);
+	}
+
+	// Eject disk in specific drive
+	function wasm_eject_disk(drive) {
+		resumeAudio();
+		Module.ccall('xroar_eject_disk', null, [ 'number' ], [ drive ]);
+	}
+
+	// Eject current tape
+	function wasm_eject_tape() {
+		resumeAudio();
+		Module.ccall('xroar_eject_input_tape', null, [ ], [ ]);
+	}
+
+	// Set simple value
+	function wasm_set_value(control, value, refocus) {
+		resumeAudio();
+		var function_name = "wasm_set_" + control;
+		Module.ccall(function_name, null, [ 'number' ], [ value ]);
+		if (refocus) {
+			Module.canvas.focus();
+		}
+	}
+
+	// Set simple value (int)
+	function wasm_set_int(control, value, refocus) {
+		resumeAudio();
+		Module.ccall("wasm_set_int", null, [ 'string', 'number' ], [ control, value ]);
+		if (refocus) {
+			Module.canvas.focus();
+		}
+	}
+
+	// Set simple value (float)
+	function wasm_set_float(control, value, refocus) {
+		resumeAudio();
+		Module.ccall("wasm_set_float", null, [ 'string', 'number' ], [ control, value ]);
+		if (refocus) {
+			Module.canvas.focus();
+		}
+	}
+
+	// Resize canvas and notify emulator
+	function wasm_resize() {
+		if (Module.is_fullscreen) {
+			Module.canvas.width = window.innerWidth;
+			Module.canvas.height = window.innerHeight;
+			Module.canvas.scrollIntoView();
+		} else {
+			Module.canvas.width = 640;
+			Module.canvas.height = 480;
+		}
+		Module.ccall('wasm_resize', null, [ 'number', 'number' ], [ Module.canvas.width, Module.canvas.height ]);
+	}
+
+	// Update virtual joystick values
+	function wasm_js_set_axis(axis, value) {
+		Module.ccall('wasm_js_set_axis', null, [ 'number', 'number' ], [ axis, value ]);
+	}
+	function wasm_js_set_button(button, value) {
+		Module.ccall('wasm_js_set_button', null, [ 'number', 'number' ], [ button, value ]);
+	}
+
+	// Call write_snapshot(), then offer the resultant file for download
+	function download_snapshot() {
+		Module.ccall('write_snapshot', null, [ 'string' ], [ 'xroar.sna' ]);
+		let content = Module.FS.readFile('xroar.sna');
+		var a = document.createElement('a');
+		a.download = 'xroar.sna';
+		a.href = URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'}));
+		a.style.display = 'none';
+
+		document.body.appendChild(a);
+		a.click();
+		setTimeout(() => {
+				document.body.removeChild(a);
+				URL.revokeObjectURL(a.href);
+				Module.FS.unlink('xroar.sna');
+			}, 2000);
+	}
+
+	// Flush disk writes then offer disk in specified drive for download
+	function download_disk(drive) {
+		Module.ccall('wasm_vdrive_flush', null, [], []);
+		if (drive_filename[drive]) {
+			let content = Module.FS.readFile(drive_filename[drive]);
+			var a = document.createElement('a');
+			a.download = drive_filename[drive];
+			a.href = URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'}));
+			a.style.display = 'none';
+
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(() => {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(a.href);
+					}, 2000);
+		}
+	}
+
+	// Offer specified HD image for download
+	function download_hd(drive) {
+		if (hd_filename[drive]) {
+			let content = Module.FS.readFile(hd_filename[drive]);
+			var a = document.createElement('a');
+			a.download = hd_filename[drive];
+			a.href = URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'}));
+			a.style.display = 'none';
+
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(() => {
+					document.body.removeChild(a);
+					URL.revokeObjectURL(a.href);
+					}, 2000);
+		}
+	}
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	// Anything under here is a function provided as callback from the main
+	// WebAssembly code.
+
+	// Clear a menu ready to repopulate
+	function ui_menu_clear(menu) {
+		var select = document.getElementById(UTF8ToString(menu));
+		if (select != null) {
+			while (select.lastChild) {
+				select.removeChild(select.lastChild);
+			}
+		}
+	}
+
+	// Add to a menu (int value)
+	function ui_menu_add(menu, label, value) {
+		var select = document.getElementById(UTF8ToString(menu));
+		if (select != null) {
+			var el = document.createElement("OPTION");
+			el.innerHTML = UTF8ToString(label);
+			el.setAttribute("value", value);
+			select.appendChild(el);
+		}
+	}
+
+	// Update displayed text in an element
+	function ui_set_html(elname, value) {
+		var el = document.getElementById(UTF8ToString(elname));
+		if (el != null) {
+			el.innerHTML = UTF8ToString(value);
+		}
+	}
+
+	// Add to a menu (string value)
+	function ui_menu_add_str(menu, label, value) {
+		var select = document.getElementById(UTF8ToString(menu));
+		if (select != null) {
+			var el = document.createElement("OPTION");
+			el.innerHTML = UTF8ToString(label);
+			el.setAttribute("value", UTF8ToString(value));
+			select.appendChild(el);
+		}
+	}
+
+	// Select menu entry by int value
+	function ui_menu_select(menu, value) {
+		var select = document.getElementById(UTF8ToString(menu));
+		if (select != null) {
+			select.value = value;
+		}
+	}
+
+	// Select menu entry by string value
+	function ui_menu_select_str(menu, value) {
+		var select = document.getElementById(UTF8ToString(menu));
+		if (select != null) {
+			select.value = UTF8ToString(value);
+		}
+	}
+
+	// Set checkbox value
+	function ui_set_checkbox(idp, value) {
+		var el = document.getElementById(UTF8ToString(idp));
+		if (el != null) {
+			el.checked = value;
+		}
+	}
+
+	// Set numerical value
+	function ui_set_value(idp, value) {
+		var id = UTF8ToString(idp);
+		var id_value = id + "_value";
+		var el = document.getElementById(id);
+		var el_value = document.getElementById(id_value);
+		if (el != null) {
+			el.value = value;
+		}
+		if (el_value != null) {
+			el_value.innerHTML = value;
+		}
+	}
+
+	// Called when input tape information changes
+	function ui_update_tape_input_filename(fnp) {
+		var el = document.getElementById('tape');
+		if (fnp != 0) {
+			el.innerHTML = UTF8ToString(fnp);
+		} else {
+			el.innerHTML = '';
+		}
+	}
+
+	// Called when tape playing status changes.  This special case hides one
+	// control (play or pause) and shows the other.
+	function ui_update_tape_playing(value) {
+		if (value) {
+			document.getElementById('tape_play').style.display = 'none';
+			document.getElementById('tape_pause').style.display = '';
+		} else {
+			document.getElementById('tape_play').style.display = '';
+			document.getElementById('tape_pause').style.display = 'none';
+		}
+	}
+
+	// Called when disk information changes for a drive
+	function ui_update_disk_info(drive, fnp, wb, wp, ncyls, nheads) {
+		var el = document.getElementById('disk' + drive);
+		if (ncyls < 0) {
+			el.innerHTML = '';
+			drive_filename[drive] = null;
+		} else {
+			el.innerHTML = ncyls.toString().padStart(2, '0') + 'C ' + nheads + 'H';
+			if (fnp != 0) {
+				var filename = UTF8ToString(fnp);
+				drive_filename[drive] = filename;
+				el.innerHTML += ' | ' + filename;
+			}
+		}
+	}
+
+	// Called when HD filename changes
+	function ui_update_hd_filename(drive, fnp) {
+		var el = document.getElementById('hd' + drive);
+		hd_filename[drive] = null;
+		el.innerHTML = '';
+		if (fnp != 0) {
+			var filename = UTF8ToString(fnp);
+			hd_filename[drive] = filename;
+			el.innerHTML = filename;
+		}
+	}
+
+	// Called when user requests fullscreen toggle
+	function ui_set_fullscreen(fs) {
+		Module.is_fullscreen = fs;
+		// If you've set up margins anywhere else, you might need to
+		// toggle a few more values here.
+		if (fs) {
+			document.getElementById('controls').style.display = 'none';
+			document.body.style.margin = '0';
+			document.body.style.padding = '0';
+			document.body.style.overflow = 'hidden';
+			window.addEventListener('resize', wasm_resize);
+		} else {
+			document.body.style.margin = '';
+			document.body.style.padding = '';
+			document.body.style.overflow = '';
+			document.getElementById('controls').style.display = '';
+			window.removeEventListener('resize', wasm_resize);
+		}
+		wasm_resize();
+	}
+
+	// Called when cross-colour renderer changes
+	function ui_update_ccr(value) {
+		document.getElementById('ccr').value = value;
+	}
+
+	// Called when XRoar has finished initialising, before the main loop
+	function ui_done_initialising() {
+		// Do the initial resize that Chromium/Linux seems to require
+		if (!Module.initial_resize) {
+			Module.initial_resize = 1;
+			wasm_set_int("fullscreen", 0, 1);
+		}
+
+		// Scan arguments for key=value pairs to populate a program struct
+		var program = {};
+		let args = window.location.search.substr(1).split('&');
+		for (let arg of args) {
+			if (arg.substring(0, 1) == '-') {
+				continue;
+			}
+			if (arg.includes('=')) {
+				let [k, v] = arg.split('=');
+				v = decodeURIComponent(v.replace(/\+/g, '%20'));
+				if (k === 'nodos') {
+					Module.ccall('wasm_set_machine_cart', null, [ 'string', 'string', 'string', 'string' ], [ v, null, null, null ]);
+				} else {
+					program[k] = v;
+				}
+			} else if (arg === 'nodos') {
+				Module.ccall('wasm_set_machine_cart', null, [ 'string', 'string', 'string', 'string' ], [ 'dragon32', null, null, null ]);
+			} else if (arg === 'fs') {
+				wasm_set_int("fullscreen", 1, 1);
+			} else {
+				// Search software list
+				var table = document.getElementById('software');
+				search_software: for (var i = 0; i < software.length; ++i) {
+					var select = document.getElementById('software:'+i);
+					const section = software[i];
+					for (var j = 0; j < section.entries.length; ++j) {
+						const entry = section.entries[j];
+						const tag = Object.hasOwn(entry, 'tag') ? entry.tag : entry.name;
+						const name = encodeURIComponent(tag);
+						if (arg === name) {
+							start_selected_software(select, i+","+j);
+							break search_software;
+						}
+					}
+				}
+			}
+		}
+
+		// Start that program, if any were specified
+		if (Object.entries(program).length !== 0) {
+			start_program(program);
+		}
+
+		window.addEventListener("gamepadconnected", (e) => {
+				Module.ccall('wasm_gamepad_connected', null, [ 'number' ], [ e.gamepad.index ]);
+				});
+
+		window.addEventListener("gamepaddisconnected", (e) => {
+				Module.ccall('wasm_gamepad_disconnected', null, [ 'number' ], [ e.gamepad.index ]);
+				});
+	}
+
+</script>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!-- Javascript glue code generated by emscripten -->
+<script src="xroar.js"></script>

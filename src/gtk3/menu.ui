@@ -1,0 +1,66 @@
+<ui>
+  <accelerator name='InsertDisk1' action='InsertDisk1Action'/>
+  <accelerator name='InsertDisk2' action='InsertDisk2Action'/>
+  <accelerator name='InsertDisk3' action='InsertDisk3Action'/>
+  <accelerator name='InsertDisk4' action='InsertDisk4Action'/>
+  <menubar name='MainMenu'>
+    <menu name='FileMenu' action='FileMenuAction'>
+      <menuitem name='Run' action='RunAction'/>
+      <menuitem name='Load' action='LoadAction'/>
+      <separator/>
+      <menuitem name='TapeControl' action='TapeControlAction'/>
+      <separator/>
+      <menuitem name='DriveControl' action='DriveControlAction'/>
+      <separator/>
+      <menuitem name='PrinterControl' action='PrinterControlAction'/>
+      <separator/>
+      <menuitem name='SaveSnapshot' action='SaveSnapshotAction'/>
+      <separator/>
+      <menuitem name='Screenshot' action='ScreenshotAction'/>
+      <separator/>
+      <menuitem name='ConfigSave' action='ConfigSaveAction'/>
+      <menuitem name='ConfigAutosave' action='ConfigAutosaveAction'/>
+      <separator/>
+      <menuitem name='Quit' action='QuitAction'/>
+    </menu>
+    <menu name='ViewMenu' action='ViewMenuAction'>
+      <menu name='TVInputMenu' action='TVInputMenuAction'/>
+      <menu name='CCRMenu' action='CCRMenuAction'/>
+      <menuitem name='VideoOptions' action='VideoOptionsAction'/>
+      <separator/>
+      <menuitem name='InverseText' action='InverseTextAction'/>
+      <separator/>
+      <menu name='ZoomMenu' action='ZoomMenuAction'>
+        <menuitem action='zoom_in'/>
+        <menuitem action='zoom_out'/>
+        <separator/>
+        <menuitem action='zoom_reset'/>
+      </menu>
+      <separator/>
+      <menuitem name='FullScreen' action='FullScreenAction'/>
+    </menu>
+    <menu name='HardwareMenu' action='HardwareMenuAction'>
+      <menu name='MachineMenu' action='MachineMenuAction'/>
+      <separator/>
+      <menu name='CartridgeMenu' action='CartridgeMenuAction'/>
+      <separator/>
+      <menu name='KeymapMenu' action='KeymapMenuAction'/>
+      <separator/>
+      <menu name='JoyRightMenu' action='JoyRightMenuAction'/>
+      <menu name='JoyLeftMenu' action='JoyLeftMenuAction'/>
+      <menuitem name='JoySwap' action='JoySwapAction'/>
+      <separator/>
+      <menuitem name='SoftReset' action='SoftResetAction'/>
+      <menuitem name='HardReset' action='HardResetAction'/>
+    </menu>
+    <menu name='ToolMenu' action='ToolMenuAction'>
+      <menu name='HKBDLayoutMenu' action='HKBDLayoutMenuAction'/>
+      <menu name='HKBDLangMenu' action='HKBDLangMenuAction'/>
+      <menuitem name='TranslateKeyboard' action='TranslateKeyboardAction'/>
+      <menuitem name='RateLimit' action='RateLimitAction'/>
+    </menu>
+    <menu name='HelpMenu' action='HelpMenuAction'>
+      <menuitem name='About' action='AboutAction'/>
+    </menu>
+  </menubar>
+</ui>

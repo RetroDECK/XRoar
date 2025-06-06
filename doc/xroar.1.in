@@ -1,0 +1,479 @@
+.TH XROAR 1 "@MANPAGE_DATE@" "XRoar @PACKAGE_VERSION@"
+.SH NAME
+xroar \- Dragon and Tandy 8-bit computer emulator
+.SH SYNOPSIS
+\fBxroar\fR [\fB\-c\fR \fIconffile\fR] [\fIOPTION\fR]... [\fIFILENAME\fR]...
+.SH DESCRIPTION
+\fBXRoar\fR emulates the Dragon 32/64; Tandy Colour Computers 1, 2 and 3; the
+Tandy MC-10; and some other similar machines or clones. It runs on a wide
+variety of platforms.
+
+.PP
+.SH OPTIONS
+Options are first read from a configuration file
+(by default, \fI$HOME/.xroar/xroar.conf\fR).  Options on the command line override
+any found in the configuration file.
+.PP
+.TP
+\fB\-C\fR
+Allocate a console window (Windows only)
+.TP
+\fB\-c\fR \fIconffile\fR
+Specify a configuration file.
+
+.SS Machines:
+
+.TP
+\fB\-m\fR \fIname\fR, \fB\-default\-machine\fR \fIname\fR
+Default machine profile to select on startup.
+.TP
+\fB\-machine\fR \fIname\fR
+Create or modify named machine profile.  \fB\-machine help\fR lists currently
+defined profiles.
+
+.PP
+The remaining options configure the currently selected machine:
+
+.TP
+\fB\-machine\-desc\fR \fItext\fR
+Machine description shown in \fB\-machine help\fR and menu options.
+.TP
+\fB\-machine\-arch\fR \fIarch\fR
+Machine architecture (\fBdragon64, dragon32, coco, coco3\fR or \fBmc10\fR)
+.TP
+\fB\-machine\-keyboard\fR \fIlayout\fR
+Keyboard layout (\fBdragon, dragon200e, coco\fR or \fBcoco3\fR)
+.TP
+\fB\-machine\-cpu\fR \fIcpu\fR
+Machine CPU (\fB6809\fR or \fB6309\fR).  Not applicable to the MC-10.
+.TP
+\fB\-bas\fR \fIrom\fR
+ROM image for Colour BASIC (CoCo) or Microcolour BASIC (MC-10).
+.TP
+\fB\-extbas\fR \fIrom\fR
+ROM image for Extended BASIC (Super Extended BASIC on the CoCo 3).
+.TP
+\fB\-altbas\fR \fIrom\fR
+ROM image for 64K-mode Extended BASIC (Dragon 64, Dragon 200-E).
+.TP
+\fB\-nobas, \-noextbas, \-noaltbas\fR
+Indicate the corresponding ROM is not fitted in this machine.
+.TP
+\fB\-ext\-charset\fR \fIrom\fR
+External character generator ROM to use.
+.TP
+\fB\-tv\-type\fR \fItype\fR
+TV type (\fBpal, ntsc\fR or \fBpal\-m\fR).
+.TP
+\fB\-tv\-input\fR \fIinput\fR
+One of ‘cmp’ (composite video, no cross-colour), ‘cmp-br’ (composite video,
+blue-red cross-colour), ‘cmp-rb’ (composite video, red-blue cross-colour) or
+‘rgb’ (RGB video, CoCo 3 only).
+.TP
+\fB\-vdg\-type\fR \fItype\fR
+Indicate the VDG variant fitted. One of \fB6847\fR or \fB6847t1\fR.
+.TP
+\fB\-ram\fR \fIkbytes\fR
+Amount of RAM fitted in kilobytes. Valid sizes are 4-64K for Dragon and Tandy
+CoCo 1/2; 128K or 512K for the Tandy CoCo 3; 2K, 4K or 20K for the Tandy MC-10.
+.TP
+\fB\-machine\-cart\fR \fIname\fR
+Default cartridge to attach.
+.TP
+\fB\-nodos\fR
+Indicate that XRoar is not to automatically attempt to attach a DOS cartridge
+to this machine (the default is to try).
+
+.SS Cartridges:
+
+.TP
+\fB\-cart\fR \fIname\fR
+Create or modify named cartridge profile.  \fB\-cart help\fR lists currently
+defined profiles.
+
+.PP
+The remaining options configure the currently selected cartridge:
+
+.TP
+\fB\-cart\-desc\fR \fItext\fR
+Cartridge description shown in \fB\-cart help\fR and menu options.
+.TP
+\fB\-cart\-type\fR \fItype\fR
+Cartridge base type (\fB\-cart\-type help\fR for list).
+.TP
+\fB\-cart\-rom\fR \fIrom\fR
+ROM image to load ($C000\-).
+.TP
+\fB\-cart\-rom2\fR \fIrom\fR
+Second ROM image to load ($E000\-).
+.TP
+\fB\-cart\-autorun\fR
+Autorun cartridge.
+.TP
+\fB\-cart\-becker\fR
+Enable becker port where supported.
+.TP
+\fB\-mpi\-slot\fR \fIslot\fR
+(MPI) initially select slot (0\-3).
+.TP
+\fB\-mpi\-load\-cart\fR \fI[slot=]name\fR
+(MPI) insert cartridge into next or numbered slot.
+
+.PP
+These options also apply to the similar RACE Computer Expansion Cage.
+
+.SS Becker port:
+
+.TP
+\fB\-becker\fR
+Prefer becker\-enabled DOS cartridge when picked automatically.
+.TP
+\fB\-becker\-ip\fR \fIaddress\fR
+Address or hostname of DriveWire server [127.0.0.1]
+.TP
+\fB\-becker\-port\fR \fIport\fR
+Port of DriveWire server [65504]
+
+.SS Cassettes:
+
+.TP
+\fB\-load\-tape\fR \fIfile\fR
+Attach \fIfile\fR as tape image for reading.
+.TP
+\fB\-tape\-write\fR \fIfile\fR
+Open \fIfile\fR for tape writing.
+.TP
+\fB\-tape\-pan\fR \fIpanning\fR
+Pan stereo input (0.0 = full left, 1.0 = full right) [0.5]
+.TP
+\fB\-tape\-hysteresis\fR \fIpercent\fR
+Read hysteresis as percentage of full scale [1]
+.TP
+\fB\-no\-tape\-fast\fR
+Disable fast tape loading.
+.TP
+\fB\-no\-tape\-pad\-auto\fR
+Disable automatic leader padding.
+.TP
+\fB\-tape\-ao\-rate\fR \fIhz\fR
+Set tape writing frame rate [9600]
+.TP
+\fB\-tape\-rewrite\fR
+Enable tape rewriting.
+.TP
+\fB\-tape\-rewrite\-gap\-ms\fR \fIms\fR
+Gap length in milliseconds to write in rewrite mode (1-5000ms, default 500ms).
+.TP
+\fB\-tape\-rewrite\-leader\fR \fIbytes\fR
+Length of leaders in bytes to write in rewrite mode (1-2048 bytes, default 256).
+
+.SS Floppy disks:
+
+.TP
+\fB\-load\-fd\fIX\fR\fR \fIfile\fR
+Insert disk image \fIfile\fR into floppy drive \fIX\fR (0-3).
+.TP
+\fB\-no\-disk\-write\-back\fR
+Don't default to enabling write\-back for disk images.
+.TP
+\fB\-no\-disk\-auto\-os9\fR
+Don't try to detect headerless OS\-9 JVC disk images.
+.TP
+\fB\-no\-disk\-auto\-sd\fR
+Don't assume single density for 10 sec/track disks.
+
+.SS Hard disks:
+
+.TP
+\fB\-load-hd\fIX\fR\fR \fIfile\fR
+Use \fIfile\fR as the hard disk image for drive \fIX\fR (0-1).
+.TP
+\fB\-load-sd\fR \fIfile\fR
+Use \fIfile\fR as the SD card image.
+
+.SS Keyboard:
+
+.TP
+\fB\-kbd\-layout\fR \fIlayout\fR
+Host keyboard layout (\fB\-kbd\-layout help\fR for list).
+.TP
+\fB\-kbd\-lang\fR \fIlang\fR
+Host keyboard language (\fB\-kbd\-lang help\fR for list).
+.TP
+\fB\-kbd\-bind\fR \fIhostkey\fR=[pre:]\fIemukey\fR
+Map host key to emulated key (pre = no translate).
+.TP
+\fB\-kbd\-translate\fR
+Enable keyboard translation.
+.TP
+\fB\-type\fR \fIstring\fR
+Intercept ROM calls to type \fIstring\fR into BASIC.
+.TP
+\fB\-load\-text\fR \fIfile\fR
+Type \fIfile\fR into BASIC.
+
+.SS Joysticks:
+
+.TP
+\fB\-joy\-db\-file\fR \fIfile\fR
+Load gamepad mappings from file.
+.TP
+\fB\-joy\-right\fR \fIname\fR
+Map right joystick.
+.TP
+\fB\-joy\-left\fR \fIname\fR
+Map left joystick.
+.TP
+\fB\-joy\-virtual\fR \fIname\fR
+Specify the 'virtual' joystick to cycle [kjoy0]
+.TP
+\fB\-joy\fR \fIname\fR
+Configure named joystick (\fB\-joy help\fR for list).
+
+.PP
+The remaining options configure the currently selected joystick:
+
+.TP
+\fB\-joy\-desc\fR \fItext\fR
+Joystick description.
+.TP
+\fB\-joy\-axis\fR \fIaxis\fR=\fIspec\fR
+Configure joystick axis.
+.TP
+\fB\-joy\-button\fR \fIbtn\fR=\fIspec\fR
+Configure joystick button.
+
+.SS Printers:
+
+.TP
+\fB\-lp\-file\fR \fIfile\fR
+Append printer output to \fIfile\fR.
+.TP
+\fB\-lp\-pipe\fR \fIcommand\fR
+Pipe printer output to \fIcommand\fR.
+
+.SS Files:
+
+.TP
+\fB\-load\fR \fIfile\fR
+Load or attach \fIfile\fR
+.TP
+\fB\-run\fR \fIfile\fR
+Load or attach \fIfile\fR and attempt autorun
+.TP
+\fB\-load\-fd\fIX\fR\fR \fIfile\fR
+Insert disk image \fIfile\fR into floppy drive \fIX\fR (0-3).
+.TP
+\fB\-load\-hd\fIX\fR\fR \fIfile\fR
+Use \fIfile\fR as the hard disk image for drive \fIX\fR (0-1).
+.TP
+\fB\-load\-sd\fR \fIfile\fR
+Use \fIfile\fR as the SD card image.
+.TP
+\fB\-load\-tape\fR \fIfile\fR
+Attach \fIfile\fR as tape image for reading.
+.TP
+\fB\-tape\-write\fR \fIfile\fR
+Open \fIfile\fR for tape writing.
+.TP
+\fB\-load\-text\fR \fIfile\fR
+Type \fIfile\fR into BASIC.
+
+.SS Firmware ROM images:
+
+.TP
+\fB\-rompath\fR \fIpath\fR
+ROM search path (colon\-separated list)
+.TP
+\fB\-romlist\fR \fIname\fR=\fIlist\fR
+define a ROM list
+.TP
+\fB\-romlist\-print\fR
+print defined ROM lists
+.TP
+\fB\-crclist\fR \fIname\fR=\fIlist\fR
+define a ROM CRC list
+.TP
+\fB\-crclist\-print\fR
+print defined ROM CRC lists
+.TP
+\fB\-force\-crc\-match\fR
+force per\-architecture CRC matches
+
+.SS User interface:
+
+.TP
+\fB\-ui\fR \fImodule\fR
+user\-interface module (\fB\-ui help\fR for list)
+
+.SS Video:
+
+.TP
+\fB\-vo\fR \fImodule\fR
+video module (\fB\-vo help\fR for list)
+.TP
+\fB\-fs\fR
+start emulator full\-screen if possible
+.TP
+\fB\-fskip\fR \fIframes\fR
+frameskip (default: 0)
+.TP
+\fB\-ccr\fR \fIrenderer\fR
+cross\-colour renderer (\fBsimple\fR, \fB5bit\fR, \fBpartial\fR or
+\fBsimulated\fR)
+.TP
+\fB\-gl\-filter\fR \fIfilter\fR
+OpenGL texture filter (\fBauto\fR, \fBnearest\fR or \fBlinear\fR)
+.TP
+\fB\-geometry\fR \fIw\fRx\fIh\fR+\fIx\fR+\fIy\fR
+initial emulator geometry
+.TP
+\fB\-vo\-picture\fR \fIp\fR
+initial picture area (\fB\-vo\-picture help\fR for list)
+.TP
+\fB\-no\-vo\-scale\-60hz\fR
+disable vertical scaling for 60Hz video
+.TP
+\fB\-invert\-text\fR
+start with text mode inverted
+.TP
+\fB\-vo\-brightness\fR \fIn\fR
+set TV brightness (0-100) [50]
+.TP
+\fB\-vo\-contrast\fR \fIn\fR
+set TV contrast (0-100) [50]
+.TP
+\fB\-vo\-colour\fR \fIn\fR
+set TV colour saturation (0-100) [50]
+.TP
+\fB\-vo\-hue\fR \fIn\fR
+set TV hue control (-179 to +180) [0]
+.TP
+\fB\-no\-vo\-colour\-killer\fR
+disable colour killer (enabled by default)
+
+.SS Audio:
+
+.TP
+\fB\-ao\fR \fImodule\fR
+audio module (\fB\-ao help\fR for list)
+.TP
+\fB\-ao\-device\fR \fIstring\fR
+device to use for audio module
+.TP
+\fB\-ao\-format\fR \fIfmt\fR
+set audio sample format (\fB\-ao\-format help\fR for list)
+.TP
+\fB\-ao\-rate\fR \fIhz\fR
+set audio frame rate (if supported by module)
+.TP
+\fB\-ao\-channels\fR \fIn\fR
+set number of audio channels, \fB1\fR or \fB2\fR
+.TP
+\fB\-ao\-fragments\fR \fIn\fR
+set number of audio fragments
+.TP
+\fB\-ao\-fragment\-ms\fR \fIms\fR
+set audio fragment size in ms (if supported)
+.TP
+\fB\-ao\-fragment\-frames\fR \fIn\fR
+set audio fragment size in samples (if supported)
+.TP
+\fB\-ao\-buffer\-ms\fR \fIms\fR
+set total audio buffer size in ms (if supported)
+.TP
+\fB\-ao\-buffer\-frames\fR \fIn\fR
+set total audio buffer size in samples (if supported)
+.TP
+\fB\-ao\-gain\fR \fIdb\fR
+audio gain in dB relative to 0 dBFS [\-3.0]
+.TP
+\fB\-volume\fR \fIvolume\fR
+older way to specify audio volume, linear (0\-100)
+
+.SS Debugging:
+
+.TP
+\fB\-gdb\fR
+enable GDB target
+.TP
+\fB\-gdb\-ip\fR \fIaddress\fR
+address of interface for GDB target [127.0.0.1]
+.TP
+\fB\-gdb\-port\fR \fIport\fR
+port for GDB target to listen on [65520]
+.TP
+\fB\-trace\fR
+start with trace mode on
+.TP
+\fB\-debug\-fdc\fR \fIflags\fR
+FDC debugging (see manual, or \fB\-1\fR for all)
+.TP
+\fB\-debug\-file\fR \fIflags\fR
+file debugging (see manual, or \fB\-1\fR for all)
+.TP
+\fB\-debug\-gdb\fR \fIflags\fR
+GDB target debugging (see manual, or \fB\-1\fR for all)
+.TP
+\fB\-debug\-ui\fR \fIflags\fR
+UI debugging (see manual, or \fB\-1\fR for all)
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR \fIlevel\fR
+general debug verbosity (\fB0\fR to \fB3\fR) [1]
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+equivalent to \fB\-\-verbose 0\fR
+.TP
+\fB\-trap\fR \fIcondition\fR
+configure a trap to fire on \fIcondition\fR.
+
+.PP
+The remaining options affect the configured trap:
+
+.TP
+\fB\-trap\-range\fR \fIm\fR-\fIn\fR
+perform trap's action only on \fIm\fRth-\fIn\fRth trigger.
+.TP
+\fB\-trap\-snap\fR \fIfile\fR
+write snapshot at trap.
+.TP
+\fB\-trap\-timeout\fR \fIn\fR
+quit emulator \fIn\fR seconds after trap.
+.TP
+\fB\-trap\-trace\fR
+start trace mode at trap.
+.TP
+\fB\-trap\-no\-trace\fR
+stop trace mode at trap.
+
+.PP
+Older options remain that can be implemented using traps:
+
+.TP
+\fB\-timeout\fR \fIs\fR
+run for \fIs\fR seconds then quit.
+.TP
+\fB\-timeout\-motoroff\fR \fIs\fR
+quit \fIs\fR seconds after tape motor switches off.
+.TP
+\fB\-snap\-motoroff\fR \fIfile\fR
+write a snapshot each time tape motor switches off.
+
+.SS Help options:
+
+.TP
+\fB\-config\-print\fR
+print configuration to standard out.
+.TP
+\fB\-config\-print\-all\fR
+print configuration to standard out, including defaults.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+display help and exit.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+output version information and exit.
+.SH FILES
+\fI$HOME/.xroar/xroar.conf\fR
+.SH AUTHOR
+Ciaran Anscomb <xroar@6809.org.uk>
