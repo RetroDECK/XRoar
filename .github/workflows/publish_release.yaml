@@ -103,9 +103,9 @@ jobs:
                 echo "-----------------------------------------------"
                 echo "        Build completed successfully"
                 echo "-----------------------------------------------"
-                ls -lah out
-                chmod +x out/xroar
-                tar -czvf xroar-${{ steps.extract_version.outputs.version }}.tar.gz -C out xroar
+                chmod +x out/bin/xroar
+                tar -czf xroar.tar.gz out/bin/xroar
+                shasum -a sha256 xroar.tar.gz > xroar.tar.gz.sha256
 
             - name: 'Create GitHub release'
               if: steps.compare_versions.outputs.update_needed == 'true'
@@ -113,7 +113,11 @@ jobs:
               with:
                   tag_name: "xroar-${{ steps.extract_version.outputs.version }}"
                   release_name: "XRoar ${{ steps.extract_version.outputs.version }}"
-                  files: xroar-${{ steps.extract_version.outputs.version }}.tar.gz
+                  files: xroar.tar.gz, xroar.tar.gz.sha256
+                  body: |
+                    ## Changes
+                    - Updated XRoar to version ${{ steps.extract_version.outputs.version }}.
+                    Check the README for more details.
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   
