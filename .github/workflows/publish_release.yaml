@@ -4,6 +4,11 @@ on:
     workflow_dispatch:
     schedule:
         - cron: '0 6 * * *' # Runs daily at 6:00 UTC
+    push:
+        branches:
+            - main
+        paths:
+            - .github/workflows/publish_release.yaml
 
 jobs:
     check-xroar-release:
@@ -95,6 +100,7 @@ jobs:
                 echo "-----------------------------------------------"
                 echo "        Build completed successfully"
                 echo "-----------------------------------------------"
+                ls -lah
                 chmod +x xroar
                 tar -czvf xroar-${{ steps.extract_version.outputs.version }}.tar.gz xroar
                 ls -lh xroar-${{ steps.extract_version.outputs.version }}.tar.gz
