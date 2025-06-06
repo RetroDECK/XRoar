@@ -112,7 +112,7 @@ jobs:
               uses: softprops/action-gh-release@v1
               with:
                   tag_name: "xroar-${{ steps.extract_version.outputs.version }}"
-                  release_name: "XRoar ${{ steps.extract_version.outputs.version }}"
+                  name: "XRoar ${{ steps.extract_version.outputs.version }}"
                   files: xroar.tar.gz, xroar.tar.gz.sha256
                   body: |
                     ## Changes
