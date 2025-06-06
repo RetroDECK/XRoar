@@ -37,7 +37,8 @@ jobs:
             - name: 'Extract version from XRoar page'
               id: extract_version
               run: |
-                  version=$(grep -oP 'Source code version \K[0-9]+\.[0-9]+\.[0-9]+' xroar_page.html | head -n1)
+                  # Grep to extract the first <strong> after "Source code" mention
+                  version=$(tr '\n' ' ' < xroar_page.html | grep -oP '<strong>Source code</strong> version.*?<strong>\K[^<]+')
                   echo "version=$version" >> $GITHUB_OUTPUT
 
             - name: 'Compare versions'
@@ -60,19 +61,21 @@ jobs:
               id: extract_download_link
               run: |
                   version="${{ steps.extract_version.outputs.version }}"
-                  url=$(grep -oP "https://www.6809.org.uk/xroar/dl/xroar-${version}\.tar\.gz" xroar_page.html | head -n1)
+                  url=$(grep -oP "dl/xroar-${version}\.tar\.gz" xroar_page.html | head -n1)
                   if [ -z "$url" ]; then
                       echo "Download link not found"
                       exit 1
                   fi
-                  echo "url=$url" >> $GITHUB_OUTPUT
+                  echo "url=https://www.6809.org.uk/xroar/$url" >> $GITHUB_OUTPUT
 
             - name: 'Download and extract new source'
               if: steps.compare_versions.outputs.update_needed == 'true'
               run: |
                   url="${{ steps.extract_download_link.outputs.url }}"
                   curl -sSL "$url" -o xroar.tar.gz
-                  tar -xzf xroar.tar.gz --strip-components=1
+                  tar -xzf xroar.tar.gz --strip-components=1 --overwrite
+                  rm -f xroar.tar.gz
+                  ls -lah
 
             - name: 'Commit and push updated source'
               if: steps.compare_versions.outputs.update_needed == 'true'
@@ -84,7 +87,23 @@ jobs:
                   git commit -m "Update XRoar source to version ${{ steps.extract_version.outputs.version }}"
                   git push --set-upstream origin "update-xroar-${{ steps.extract_version.outputs.version }}"
 
-            - name: 'Build XRoar (placeholder)'
+            - name: 'Build XRoar'
               if: steps.compare_versions.outputs.update_needed == 'true'
               run: |
-                  echo "TODO: Add build steps here"
+                sudo apt install build-essential libgtk-3-dev libpulse-dev libpng-dev
+                ./configure
+                make
+                chmod +x xroar
+                tar -czvf xroar-${{ steps.extract_version.outputs.version }}.tar.gz xroar
+                ls -lh xroar-${{ steps.extract_version.outputs.version }}.tar.gz
+
+            - name: 'Create GitHub release'
+              if: steps.compare_versions.outputs.update_needed == 'true'
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: "xroar-${{ steps.extract_version.outputs.version }}"
+                  release_name: "XRoar ${{ steps.extract_version.outputs.version }}"
+                  files: xroar-${{ steps.extract_version.outputs.version }}.tar.gz
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  
