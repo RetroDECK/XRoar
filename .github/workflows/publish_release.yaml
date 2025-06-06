@@ -72,6 +72,7 @@ jobs:
                       exit 1
                   fi
                   echo "url=https://www.6809.org.uk/xroar/$url" >> $GITHUB_OUTPUT
+                  rm -rf xroar_page.html
 
             - name: 'Download and extract new source'
               if: steps.compare_versions.outputs.update_needed == 'true'
