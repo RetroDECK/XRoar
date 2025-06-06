@@ -72,7 +72,6 @@ jobs:
                       exit 1
                   fi
                   echo "url=https://www.6809.org.uk/xroar/$url" >> $GITHUB_OUTPUT
-                  rm -rf xroar_page.html
 
             - name: 'Download and extract new source'
               if: steps.compare_versions.outputs.update_needed == 'true'
@@ -80,7 +79,6 @@ jobs:
                   url="${{ steps.extract_download_link.outputs.url }}"
                   curl -sSL "$url" -o xroar.tar.gz
                   tar -xzf xroar.tar.gz --strip-components=1 --overwrite
-                  rm -f xroar.tar.gz
                   ls -lah
 
             - name: 'Commit and push updated source'
