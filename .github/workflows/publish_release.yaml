@@ -105,7 +105,7 @@ jobs:
                 echo "-----------------------------------------------"
                 chmod +x out/bin/xroar
                 tar -czf xroar.tar.gz -C out .
-                shasum -a sha256 xroar.tar.gz > xroar.tar.gz.sha256
+                sha256sum xroar.tar.gz > xroar.tar.gz.sha256
 
             - name: 'Create GitHub release'
               if: steps.compare_versions.outputs.update_needed == 'true'
